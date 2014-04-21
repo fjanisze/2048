@@ -6,7 +6,8 @@ namespace graphic_2048
 {
 
     graphic_2048::graphic_2048(int x_size,int y_size,int size) : x_s(x_size/size), y_s(y_size/size), map_size(size),
-                                                                     grid_container(size), num_container(size),random_coord_index(0)
+                                                                     grid_container(size), num_container(size),
+                                                                     random_coord_index(0),points(0),game_over(false)
     {
         if(!font.loadFromFile("consola.ttf"))
         {
@@ -38,11 +39,13 @@ namespace graphic_2048
                 num_container.get(x,y)=0;
             }
         }
+
         //Set the proper mapping
         keymap[sf::Keyboard::Up]=simple_matrix::rotation_angle::rotate_90;
         keymap[sf::Keyboard::Down]=simple_matrix::rotation_angle::rotate_270;
         keymap[sf::Keyboard::Left]=simple_matrix::rotation_angle::rotate_180;
         keymap[sf::Keyboard::Right]=simple_matrix::rotation_angle::rotate_0;
+
         //Random number generator, use the marsenne twister engine
         std::random_device rd;
         std::mt19937 en(rd()); //marsenne twister engine
@@ -51,6 +54,7 @@ namespace graphic_2048
         {
             random_coords.push_back(std::make_pair<int,int>(generator(en),generator(en)));
         }
+
         //Generate the num colors
         int r=192,b=192,g=192,n=2;
         for(;n<=1<<16;n*=2)
@@ -67,7 +71,21 @@ namespace graphic_2048
                 r-=64;
             }
         }
-        update_num_color();
+
+        //Set properly the info bar string
+        info_bar_text.setString("Make a move!");
+        info_bar_text.setFont(font);
+        info_bar_text.setCharacterSize(20);
+        info_bar_text.setColor(sf::Color::Red);
+        info_bar_text.setPosition(sf::Vector2f(10,y_size+2));
+
+        //Game over sprite
+        if (!game_over_texture.loadFromFile("over.png"))
+        {
+            throw std::runtime_error("HOLY SHIT!!!");
+        }
+        game_over_sprite.setPosition(x_size-200,y_size);
+        game_over_sprite.setTexture(game_over_texture);
     }
 
     void graphic_2048::draw(sf::RenderWindow& rnd)
@@ -88,17 +106,55 @@ namespace graphic_2048
                 }
             }
         }
+
+        if(game_over)
+        {
+            rnd.draw(game_over_sprite);
+        }
+
+        //Draw the info bar
+        rnd.draw(info_bar_text);
+    }
+
+    void graphic_2048::set_info()
+    {
+
+        std::stringstream ss;
+        auto get_level=[this](){
+            switch(points/512)
+            {
+            case 0:
+                return "Pussy!";
+            case 1:
+                return "Half man!";
+            case 2:
+                return "Bitch!";
+            case 3:
+                return "Nigga way!";
+            case 4:
+                return "Real pimp!";
+            default:
+                return "Fucking master!";
+            };
+        };
+        ss<<"Points "<<points<<", Level: "<<get_level();
+        info_bar_text.setString(ss.str().c_str());
+
     }
 
     void graphic_2048::click(const sf::Event& ev)
     {
+        if(game_over) return;
         int x = ev.mouseButton.x / x_s,
             y = ev.mouseButton.y / y_s;
 
         if(num_container.get(x,y)==0)
             num_container.get(x,y) = 2;
         else
+        {
+            points+=(num_container.get(x,y)*2);
             num_container.get(x,y) *= 2;
+        }
     }
 
     void graphic_2048::button(const sf::Event& ev)
@@ -131,7 +187,6 @@ namespace graphic_2048
         //Now do the sum
         for(int y=0;y<map_size;y++)
         {
-           // std::vector<int> row;
             int c=-1,cur_x=map_size-1;
             for(int x=map_size-1;x>=0;x--)
             {
@@ -142,6 +197,7 @@ namespace graphic_2048
                     int t2=num_container.get(cur_x,y);
                     if(t2==t)
                     {
+                        points+=(t2*2);
                         num_container.get(cur_x,y)*=2;
                         num_container.get(x,y)=0;
                         --cur_x;
@@ -173,12 +229,35 @@ namespace graphic_2048
             num_container.rotate(simple_matrix::rotation_angle::rotate_90);
             break;
         };
+
         if(moved)
         {
             add_new_number();
         }
+
         //Fix the background color
         update_num_color();
+        //Update the info bar
+        set_info();
+        //Game over?
+        game_over = !check_is_possible_to_continue();
+    }
+
+    bool graphic_2048::check_is_possible_to_continue()
+    {
+        for(int y=0;y<map_size;y++)
+        {
+            for(int x=0;x<map_size;x++)
+            {
+                if(num_container.get(x,y)==0)
+                    return true;
+                if((x<(map_size-1))&&num_container.get(x,y)==num_container.get(x+1,y))
+                    return true;
+                if((y<(map_size-1))&&num_container.get(x,y)==num_container.get(x,y+1))
+                    return true;
+            }
+        }
+        return false;
     }
 
     void graphic_2048::update_num_color()
@@ -208,6 +287,11 @@ namespace graphic_2048
         y=random_coords[random_coord_index].second;
         ++random_coord_index;
     }
+
+    bool graphic_2048::can_continue()
+    {
+        return !game_over;
+    }
 }
 
 int main(int argc,char** argv)
@@ -218,9 +302,10 @@ int main(int argc,char** argv)
         return RUN_ALL_TESTS();
     }
     // Create the main window
-    sf::RenderWindow app(sf::VideoMode(800, 600), "2048");
+    sf::RenderWindow app(sf::VideoMode(800, 630), "2048");
     graphic_2048::graphic_2048 game(800,600,4);
     game.add_new_number(2);
+    game.update_num_color();
 
 	// Start the game loop
     while (app.isOpen())
@@ -238,7 +323,10 @@ int main(int argc,char** argv)
                 game.click(event);
                 break;
             case sf::Event::KeyPressed:
-                game.button(event);
+                if(game.can_continue())
+                {
+                    game.button(event);
+                }
                 break;
             };
         }

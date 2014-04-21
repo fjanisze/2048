@@ -31,6 +31,10 @@ namespace graphic_2048
         int x_s,
             y_s,
             map_size;
+        int points;
+        bool game_over;
+        sf::Texture game_over_texture;
+        sf::Sprite game_over_sprite;
 
         grid_container_t grid_container;
         num_container_t  num_container;
@@ -42,10 +46,12 @@ namespace graphic_2048
         sf::Font font;
         sf::Color bg_default{230,230,200};
         sf::Color num_bg_default{255,100,100};
+        sf::Text  info_bar_text;
 
         int random_coord_index;
         void get_random_coord(int& x,int& y);
-        void update_num_color();
+        void set_info();
+        bool check_is_possible_to_continue();
     public:
         graphic_2048(int x_size,int y_size,int size);
         void draw(sf::RenderWindow& rnd);
@@ -53,5 +59,7 @@ namespace graphic_2048
         void button(const sf::Event& ev);
         bool action(simple_matrix::rotation_angle angle);
         void add_new_number(int amount=1);
+        void update_num_color();
+        bool can_continue();
     };
 }
