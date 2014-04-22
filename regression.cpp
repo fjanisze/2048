@@ -246,4 +246,40 @@ namespace regression_2048
         ASSERT_EQ(matrix.get(2,2),1);
         ASSERT_EQ(matrix.get(1,1),5);
     }
+
+    //Menu functionality
+    class game_menu_testsuit : public ::testing::Test
+    {
+    public:
+        menu_2048::game_menu menu;
+        game_menu_testsuit():menu(800,630)
+        {
+        }
+    };
+
+    TEST_F(game_menu_testsuit, AddButtonAndCallBackWithOneFailure)
+    {
+        int counter=0;
+        std::function<void()> callback([&](){
+                //Do nothing
+                ++counter;
+        });
+        ASSERT_EQ(1, menu.add_button("test",callback));
+        ASSERT_NO_THROW(menu.trigger_button("test"));
+        ASSERT_THROW(menu.trigger_button("failind"),std::runtime_error);
+        ASSERT_EQ(1,counter);
+    }
+
+    TEST_F(game_menu_testsuit, AddMoreThanTheAllowedAmountOfButtons)
+    {
+        std::function<void()> callback([](){
+                //Do nothing
+        });
+        ASSERT_EQ(1, menu.add_button("test",callback));
+        ASSERT_EQ(2, menu.add_button("test2",callback));
+        ASSERT_EQ(3, menu.add_button("test3",callback));
+        ASSERT_EQ(4, menu.add_button("test4",callback));
+        ASSERT_EQ(5, menu.add_button("test5",callback));
+        ASSERT_THROW(menu.add_button("test6",callback),std::runtime_error);
+    }
 }

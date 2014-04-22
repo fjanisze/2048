@@ -9,6 +9,38 @@
 #include <random>
 #include <utility>
 #include <cmath>
+#include <functional>
+
+namespace menu_2048
+{
+    static const int amount_of_buttons{5};
+
+    struct button_info
+    {
+        int x_position,
+            y_position;
+        int height,
+            width;
+    };
+
+    class game_menu
+    {
+        int x_size,
+            y_size;
+        int x_menu_pos,
+            y_menu_pos;
+
+        static int menu_width,
+                   menu_height;
+        static button_info buttons_position[amount_of_buttons];
+
+        std::map<std::string,std::function<void()>> callback_map;
+    public:
+        game_menu(int window_x_size,int window_y_size);
+        int add_button(const std::string& name, std::function<void()>& call_back);
+        void trigger_button(const std::string& name);
+    };
+}
 
 namespace graphic_2048
 {
@@ -21,6 +53,7 @@ namespace graphic_2048
 
     template<typename T>
     using sq_matrix = simple_matrix::simple_square_matrix<T>;
+
 
     class graphic_2048
     {
