@@ -1,13 +1,14 @@
 #include "2048.hpp"
 
-static const bool run_regression = false; //Set to true to build the regression code
+static const bool run_regression = true; //Set to true to build the regression code
 
 namespace graphic_2048
 {
 
     graphic_2048::graphic_2048(int x_size,int y_size,int size) : x_s(x_size/size), y_s(y_size/size), map_size(size),
                                                                      grid_container(size), num_container(size),
-                                                                     random_coord_index(0),points(0),game_over(false)
+                                                                     random_coord_index(0),points(0),game_over(false),
+                                                                     last_hit(0)
     {
         if(!font.loadFromFile("consola.ttf"))
         {
@@ -137,7 +138,12 @@ namespace graphic_2048
                 return "Fucking master!";
             };
         };
-        ss<<"Points "<<points<<", Level: "<<get_level();
+        ss<<"Points "<<points;
+        if(last_hit>0)
+        {
+            ss<<" (+"<<last_hit<<")";
+        }
+        ss<<" Level: "<<get_level();
         info_bar_text.setString(ss.str().c_str());
 
     }
@@ -165,6 +171,11 @@ namespace graphic_2048
 
     void graphic_2048::add_new_number(int amount)
     {
+        if(run_regression)
+        {
+            //do not generate numbers in regression mode
+            return;
+        }
         //Generate a block
         int x,y;
         do{
@@ -197,8 +208,7 @@ namespace graphic_2048
                     int t2=num_container.get(cur_x,y);
                     if(t2==t)
                     {
-                        points+=(t2*2);
-                        num_container.get(cur_x,y)*=2;
+                        score_point(cur_x,y);
                         num_container.get(x,y)=0;
                         --cur_x;
                     }
@@ -241,6 +251,18 @@ namespace graphic_2048
         set_info();
         //Game over?
         game_over = !check_is_possible_to_continue();
+    }
+
+    int graphic_2048::score_point(int x, int y)
+    {
+        last_hit=num_container.get(x,y)*2;
+        points+=last_hit;
+        num_container.get(x,y)*=2;
+    }
+
+    int graphic_2048::get_score()
+    {
+        return points;
     }
 
     bool graphic_2048::check_is_possible_to_continue()

@@ -62,6 +62,8 @@ namespace regression_2048
         ASSERT_EQ(16,num->get(3,2));
         ASSERT_EQ(4,num->get(2,3));
         ASSERT_EQ(4,num->get(3,3));
+
+        ASSERT_EQ(32,game.get_score());
     }
 
     TEST_F(graphic_2048_basictest,MoveDownAndThenLeft)
@@ -80,6 +82,7 @@ namespace regression_2048
         ASSERT_EQ(2,num->get(1,3));
         ASSERT_EQ(2,num->get(2,3));
         ASSERT_EQ(2,num->get(3,3));
+        ASSERT_EQ(8,game.get_score());
 
         //Move left
         game.action(simple_matrix::rotation_angle::rotate_180);
@@ -90,6 +93,7 @@ namespace regression_2048
         ASSERT_EQ(16,num->get(2,2));
         ASSERT_EQ(4,num->get(0,3));
         ASSERT_EQ(4,num->get(1,3));
+
     }
 
     TEST_F(graphic_2048_basictest,MoveLeftAndUp)
@@ -105,6 +109,7 @@ namespace regression_2048
         ASSERT_EQ(16,num->get(2,2));
         ASSERT_EQ(4,num->get(0,3));
         ASSERT_EQ(4,num->get(1,3));
+        ASSERT_EQ(32,game.get_score());
 
         //Up
         game.action(simple_matrix::rotation_angle::rotate_90);
@@ -115,6 +120,7 @@ namespace regression_2048
         ASSERT_EQ(8,num->get(1,1));
         ASSERT_EQ(16,num->get(0,2));
         ASSERT_EQ(4,num->get(0,3));
+        ASSERT_EQ(40,game.get_score());
     }
 
 

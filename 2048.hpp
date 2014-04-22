@@ -31,7 +31,8 @@ namespace graphic_2048
         int x_s,
             y_s,
             map_size;
-        int points;
+        int points,
+            last_hit;
         bool game_over;
         sf::Texture game_over_texture;
         sf::Sprite game_over_sprite;
@@ -52,6 +53,7 @@ namespace graphic_2048
         void get_random_coord(int& x,int& y);
         void set_info();
         bool check_is_possible_to_continue();
+        int score_point(int x, int y);
     public:
         graphic_2048(int x_size,int y_size,int size);
         void draw(sf::RenderWindow& rnd);
@@ -61,5 +63,6 @@ namespace graphic_2048
         void add_new_number(int amount=1);
         void update_num_color();
         bool can_continue();
+        int get_score();
     };
 }
