@@ -1,6 +1,7 @@
 #include "regression.hpp"
 #include "2048.hpp"
 #include "simple_matrix.hpp"
+#include <gmock/gmock.h>
 
 namespace regression_2048
 {
@@ -248,16 +249,16 @@ namespace regression_2048
     }
 
     //Menu functionality
-    class game_menu_testsuit : public ::testing::Test
+    class game_menu_testsuit_basic : public ::testing::Test
     {
     public:
         menu_2048::game_menu menu;
-        game_menu_testsuit():menu(800,630)
+        game_menu_testsuit_basic():menu(800,630)
         {
         }
     };
 
-    TEST_F(game_menu_testsuit, AddButtonAndCallBackWithOneFailure)
+    TEST_F(game_menu_testsuit_basic, AddButtonAndCallBackWithOneFailure)
     {
         int counter=0;
         std::function<void()> callback([&](){
@@ -270,7 +271,7 @@ namespace regression_2048
         ASSERT_EQ(1,counter);
     }
 
-    TEST_F(game_menu_testsuit, AddMoreThanTheAllowedAmountOfButtons)
+    TEST_F(game_menu_testsuit_basic, AddMoreThanTheAllowedAmountOfButtons)
     {
         std::function<void()> callback([](){
                 //Do nothing
@@ -282,4 +283,54 @@ namespace regression_2048
         ASSERT_EQ(5, menu.add_button("test5",callback));
         ASSERT_THROW(menu.add_button("test6",callback),std::runtime_error);
     }
+
+    using ::testing::_;
+
+    //Mock for the RenderWindow class
+    class RenderWindowMock
+    {
+    public:
+        MOCK_CONST_METHOD1(draw,void(sf::Drawable& rnd));
+    };
+
+    class game_menu_testsuit_drawing : public ::testing::Test
+    {
+    public:
+        menu_2048::game_menu menu;
+        game_menu_testsuit_drawing():menu(800,630)
+        {
+        }
+        void SetUp()
+        {
+            std::function<void()> callback([](){
+                //Do nothing
+            });
+            ASSERT_EQ(1, menu.add_button("test",callback));
+            ASSERT_EQ(2, menu.add_button("test2",callback));
+            ASSERT_EQ(3, menu.add_button("test3",callback));
+            ASSERT_EQ(4, menu.add_button("test4",callback));
+            ASSERT_EQ(5, menu.add_button("test5",callback));
+        }
+    };
+
+
+    TEST_F(game_menu_testsuit_drawing, AddButtonsAndDraw)
+    {
+        RenderWindowMock renderWnd;
+        EXPECT_CALL(renderWnd,draw(_)).Times(6);
+
+         ASSERT_NO_THROW(menu.draw_menu(renderWnd));
+    }
+
 }
+
+
+
+
+
+
+
+
+
+
+

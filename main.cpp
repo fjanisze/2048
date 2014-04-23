@@ -83,7 +83,7 @@ namespace graphic_2048
         //Game over sprite
         if (!game_over_texture.loadFromFile("over.png"))
         {
-            throw std::runtime_error("HOLY SHIT!!!");
+            throw std::runtime_error("HOLY SHIT! Unable to load the 'game over' texture!");
         }
         game_over_sprite.setPosition(x_size-200,y_size);
         game_over_sprite.setTexture(game_over_texture);
@@ -179,8 +179,6 @@ namespace graphic_2048
         //Generate a block
         int x,y;
         do{
-            get_random_coord(x,y);
-            int n=num_container.get(x,y);
             if(num_container.get(x,y)==0)
             {
                 int a,b;
@@ -191,14 +189,14 @@ namespace graphic_2048
         }while(amount>0);
     }
 
-    bool graphic_2048::action(simple_matrix::rotation_angle angle)
+    void graphic_2048::action(simple_matrix::rotation_angle angle)
     {
         num_container.rotate(angle);
         bool moved=false;
         //Now do the sum
         for(int y=0;y<map_size;y++)
         {
-            int c=-1,cur_x=map_size-1;
+            int cur_x=map_size-1;
             for(int x=map_size-1;x>=0;x--)
             {
                 int t=num_container.get(x,y);
@@ -238,6 +236,9 @@ namespace graphic_2048
         case simple_matrix::rotation_angle::rotate_270:
             num_container.rotate(simple_matrix::rotation_angle::rotate_90);
             break;
+        default:
+            //Ignored
+            ;
         };
 
         if(moved)
@@ -258,6 +259,7 @@ namespace graphic_2048
         last_hit=num_container.get(x,y)*2;
         points+=last_hit;
         num_container.get(x,y)*=2;
+        return points;
     }
 
     int graphic_2048::get_score()
@@ -320,7 +322,7 @@ int main(int argc,char** argv)
 {
     if(run_regression)
     {
-        ::testing::InitGoogleTest(&argc,argv);
+        ::testing::InitGoogleMock(&argc,argv);
         return RUN_ALL_TESTS();
     }
     // Create the main window
@@ -350,6 +352,9 @@ int main(int argc,char** argv)
                     game.button(event);
                 }
                 break;
+            default:
+                //Ignored
+                ;
             };
         }
 

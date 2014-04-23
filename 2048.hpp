@@ -1,6 +1,6 @@
 #include <SFML/Graphics.hpp>
 #include "simple_matrix.hpp"
-#include <gtest.h>
+#include <gmock.h>
 #include <vector>
 #include <iostream>
 #include <sstream>
@@ -33,13 +33,33 @@ namespace menu_2048
         static int menu_width,
                    menu_height;
         static button_info buttons_position[amount_of_buttons];
+        sf::Texture tx_menu_bg,
+                    tx_button_bg;
+        sf::Sprite sprite_menu_bg,
+                   sprite_button_bg;
 
         std::map<std::string,std::function<void()>> callback_map;
+        void load_texture();
     public:
         game_menu(int window_x_size,int window_y_size);
         int add_button(const std::string& name, std::function<void()>& call_back);
         void trigger_button(const std::string& name);
+        template<typename RenderClassT>
+        void draw_menu(RenderClassT& rnd);
     };
+
+    template<typename RenderClassT>
+    void game_menu::draw_menu(RenderClassT& rnd)
+    {
+        //First the background the the buttons
+        rnd.draw(sprite_menu_bg);
+        //Show the buttons
+        for(auto elem:buttons_position)
+        {
+            sprite_button_bg.setPosition(sf::Vector2f(elem.x_position,elem.y_position));
+            rnd.draw(sprite_button_bg);
+        }
+    }
 }
 
 namespace graphic_2048
@@ -92,7 +112,7 @@ namespace graphic_2048
         void draw(sf::RenderWindow& rnd);
         void click(const sf::Event& ev);
         void button(const sf::Event& ev);
-        bool action(simple_matrix::rotation_angle angle);
+        void action(simple_matrix::rotation_angle angle);
         void add_new_number(int amount=1);
         void update_num_color();
         bool can_continue();

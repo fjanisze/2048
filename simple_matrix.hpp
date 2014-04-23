@@ -112,6 +112,9 @@ namespace simple_matrix
             transponse_matrix();
             reverse_col();
             break;
+        default:
+            //Ignored
+            ;
         };
         return 0;
     }
