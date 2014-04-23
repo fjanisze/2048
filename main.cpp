@@ -1,6 +1,6 @@
 #include "2048.hpp"
 
-static const bool run_regression = true; //Set to true to build the regression code
+static const bool run_regression = false; //Set to true to build the regression code
 
 namespace graphic_2048
 {
@@ -179,6 +179,7 @@ namespace graphic_2048
         //Generate a block
         int x,y;
         do{
+            get_random_coord(x,y);
             if(num_container.get(x,y)==0)
             {
                 int a,b;

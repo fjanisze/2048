@@ -124,7 +124,6 @@ namespace regression_2048
         ASSERT_EQ(40,game.get_score());
     }
 
-
     //For the matrix
 
     class StupidMatrixSize3 : public ::testing::Test
