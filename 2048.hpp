@@ -125,6 +125,7 @@ namespace graphic_2048
         int score_point(int x, int y);
         void click(const sf::Event& ev);
         void button(const sf::Event& ev);
+        long save_and_load_impl(std::function<void(char*,std::size_t)> operation);
     public:
         graphic_2048(int x_size,int y_size,int size);
         void draw(sf::RenderWindow& rnd);

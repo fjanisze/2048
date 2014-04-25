@@ -343,31 +343,27 @@ namespace graphic_2048
 
     long graphic_2048::save_data(std::ofstream& out_stream)
     {
-        out_stream.write((char*)(&points),sizeof(int));
-        out_stream.write((char*)(&last_hit),sizeof(int));
-        std::size_t pos_type_size=sizeof(decltype(grid_container.get(0,0)->border[0].position.x));
-        for(int y=0;y<map_size;y++)
+        std::function<void(char*,std::size_t)> save([&](const char* data,std::size_t size)
         {
-            for(int x=0;x<map_size;x++)
-            {
-                std::shared_ptr<single_grid> grid=grid_container.get(x,y);
-                sf::VertexArray* vertex=&grid->border;
-                for(int i=0;i<4;i++)
-                {
-                    out_stream.write((char*)(&((*vertex)[i].position.x)),pos_type_size);
-                    out_stream.write((char*)(&((*vertex)[i].position.y)),pos_type_size);
-                }
-                int num = num_container.get(x,y);
-                out_stream.write((char*)(&num),sizeof(int));
-            }
-        }
-        return out_stream.tellp();
+            out_stream.write(data,size);
+        });
+        save_and_load_impl(save);
     }
 
     long graphic_2048::load_data(std::ifstream& in_stream)
     {
-        in_stream.read((char*)(&points),sizeof(int));
-        in_stream.read((char*)(&last_hit),sizeof(int));
+        std::function<void(char*,std::size_t)> load([&](char* data,std::size_t size)
+        {
+            in_stream.read(data,size);
+        });
+        save_and_load_impl(load);
+        update_num_color();
+    }
+
+    long graphic_2048::save_and_load_impl(std::function<void(char*,std::size_t)> operation)
+    {
+        operation((char*)(&points),sizeof(int));
+        operation((char*)(&last_hit),sizeof(int));
         std::size_t pos_type_size=sizeof(decltype(grid_container.get(0,0)->border[0].position.x));
         for(int y=0;y<map_size;y++)
         {
@@ -377,15 +373,13 @@ namespace graphic_2048
                 sf::VertexArray* vertex=&grid->border;
                 for(int i=0;i<4;i++)
                 {
-                    in_stream.read((char*)(&((*vertex)[i].position.x)),pos_type_size);
-                    in_stream.read((char*)(&((*vertex)[i].position.y)),pos_type_size);
+                    operation((char*)(&((*vertex)[i].position.x)),pos_type_size);
+                    operation((char*)(&((*vertex)[i].position.y)),pos_type_size);
                 }
-                int num = num_container.get(x,y);
-                in_stream.read((char*)(&num),sizeof(int));
-                num_container.get(x,y)=num;
+                int& num = num_container.get(x,y);
+                operation((char*)(&num),sizeof(int));
             }
         }
-        update_num_color();
     }
 }
 
