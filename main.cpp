@@ -120,25 +120,26 @@ namespace graphic_2048
 
     void graphic_2048::set_info()
     {
-
-        std::stringstream ss;
-        auto get_level=[this](){
-            switch(points/512)
-            {
-            case 0:
-                return "Pussy!";
-            case 1:
-                return "Half man!";
-            case 2:
-                return "Bitch!";
-            case 3:
-                return "Nigga way!";
-            case 4:
-                return "Real pimp!";
-            default:
-                return "Fucking master!";
-            };
+        static std::string levels[]=
+        {
+            "Worthless!",
+            "Rat excrement!",
+            "Rat!",
+            "Half man!",
+            "Still an half man!",
+            "NSN developer!",
+            "Human being!",
+            "Pussy",
+            "Big Pussy!",
+            "Nice Pussy!",
+            "Very good pussy!"
         };
+        auto get_level = [&](){
+            int index = points/512;
+            index = index>10?10:index;
+            return levels[index];
+        };
+        std::stringstream ss;
         ss<<"Points "<<points;
         if(last_hit>0)
         {
@@ -342,6 +343,22 @@ namespace graphic_2048
         }
     }
 
+    void graphic_2048::reset_board()
+    {
+        for(int y=0;y<map_size;y++)
+        {
+            for(int x=0;x<map_size;x++)
+            {
+                num_container.get(x,y)=0;
+            }
+        }
+        points=last_hit=0;
+        game_over=false;
+        add_new_number(2);
+        update_num_color();
+        set_info();
+    }
+
     long graphic_2048::save_data(std::ofstream& out_stream)
     {
         std::function<void(char*,std::size_t)> save([&](const char* data,std::size_t size)
@@ -359,6 +376,7 @@ namespace graphic_2048
         });
         save_and_load_impl(load);
         update_num_color();
+        set_info();
     }
 
     long graphic_2048::save_and_load_impl(std::function<void(char*,std::size_t)> operation)
@@ -407,7 +425,7 @@ namespace game_runner
     void runner_2048::new_game_button()
     {
         current_mode=current_game_mode::PLAY_MODE;
-        std::cout<<"NEW GAME\n";
+        graphic.reset_board();
     }
 
     void runner_2048::load_game_button()

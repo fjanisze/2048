@@ -137,6 +137,7 @@ namespace graphic_2048
         void trigger_event(const sf::Event& event);
         long save_data(std::ofstream& out_stream);
         long load_data(std::ifstream& in_stream);
+        void reset_board();
     };
 }
 
