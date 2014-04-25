@@ -72,6 +72,8 @@ namespace menu_2048
             sprite_button_bg.setPosition(position);
             rnd.draw(sprite_button_bg);
             //Draw the button name
+            position.x+=3;
+            position.y+=10;
             button_default_text.setPosition(position);
             button_default_text.setString(elem->button_name.c_str());
             rnd.draw(button_default_text);
