@@ -1,6 +1,6 @@
 #include "2048.hpp"
 
-static const bool run_regression = true; //Set to true to build the regression code
+static const bool run_regression = false; //Set to true to build the regression code
 
 namespace graphic_2048
 {
@@ -166,7 +166,10 @@ namespace graphic_2048
     void graphic_2048::button(const sf::Event& ev)
     {
         int key=ev.key.code;
-        action(keymap[key]);
+        if(keymap.find(key)!=keymap.end())
+        {
+            action(keymap[key]);
+        }
     }
 
     void graphic_2048::add_new_number(int amount)
@@ -350,13 +353,21 @@ namespace game_runner
         graphic.update_num_color();
 
         std::function<void()> trigger_new_game([this](){new_game_button();});
+        std::function<void()> trigger_load_game([this](){load_game_button();});
         //Add the menu buttons
         menu.add_button("New game",trigger_new_game);
+        menu.add_button("Load game",trigger_load_game);
     }
 
     void runner_2048::new_game_button()
     {
+        current_mode=current_game_mode::PLAY_MODE;
         std::cout<<"NEW GAME\n";
+    }
+
+    void runner_2048::load_game_button()
+    {
+        std::cout<<"LOAD GAME\n";
     }
 
     void runner_2048::loop()
@@ -382,11 +393,25 @@ namespace game_runner
                 //Specific events
                 if(current_mode==current_game_mode::PLAY_MODE)
                 {
-                    graphic.trigger_event(event);
+                    if(!escape_button_pressed(event))
+                    {
+                        graphic.trigger_event(event);
+                    }
+                    else
+                    {
+                        current_mode=current_game_mode::MENU_MODE;
+                    }
                 }
                 else
                 {
-                    menu.trigger_event(event);
+                    if(escape_button_pressed(event))
+                    {
+                        current_mode=current_game_mode::PLAY_MODE;
+                    }
+                    else
+                    {
+                        menu.trigger_event(event);
+                    }
                 }
             }
 
@@ -404,6 +429,14 @@ namespace game_runner
             // Update the window
             app.display();
         }
+    }
+
+    bool runner_2048::escape_button_pressed(const sf::Event& event)
+    {
+        if((event.type==sf::Event::KeyPressed)&&
+           (event.key.code==sf::Keyboard::Escape))
+           return true;
+        return false;
     }
 
 }

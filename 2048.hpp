@@ -154,6 +154,8 @@ namespace game_runner
         current_game_mode current_mode;
         sf::RenderWindow app;
         void new_game_button();
+        void load_game_button();
+        bool escape_button_pressed(const sf::Event& event);
     public:
         runner_2048();
         void loop();
