@@ -119,7 +119,7 @@ namespace graphic_2048
         rnd.draw(info_bar_text);
     }
 
-    void graphic_2048::set_info()
+    std::string graphic_2048::get_level(int pt)
     {
         static std::string levels[]=
         {
@@ -135,18 +135,20 @@ namespace graphic_2048
             "Nice Pussy!",
             "Very good pussy!"
         };
-        auto get_level = [&](){
-            int index = points/512;
-            index = index>10?10:index;
-            return levels[index];
-        };
+        int index = pt/512;
+        index = index>10?10:index;
+        return levels[index];
+    }
+
+    void graphic_2048::set_info()
+    {
         std::stringstream ss;
         ss<<"Points "<<points;
         if(last_hit>0)
         {
             ss<<" (+"<<last_hit<<")";
         }
-        ss<<" Level: "<<get_level();
+        ss<<" Level: "<<get_level(points);
         info_bar_text.setString(ss.str().c_str());
 
     }
@@ -432,6 +434,7 @@ namespace graphic_2048
 
     std::vector<hof_entry>& graphic_2048::get_hof()
     {
+        std::sort(hof.rbegin(),hof.rend());
         return hof;
     }
 }
@@ -446,6 +449,15 @@ namespace game_runner
 
         graphic.add_new_number(2);
         graphic.update_num_color();
+
+        if(!font.loadFromFile("consola.ttf"))
+        {
+            throw std::runtime_error("ERROR: Unable to load consola.ttf");
+        }
+
+        hof_text.setFont(font);
+        hof_text.setColor(sf::Color::Red);
+        hof_text.setCharacterSize(20);
 
         std::function<void()> trigger_new_game([this](){new_game_button();});
         std::function<void()> trigger_save_game([this](){save_game_button();});
@@ -486,12 +498,7 @@ namespace game_runner
 
     void runner_2048::hof_game_button()
     {
-        std::vector<graphic_2048::hof_entry> hof=graphic.get_hof();
-        std::sort(hof.rbegin(),hof.rend());
-        for(auto elem:hof)
-        {
-            std::cout<<elem.date<<": "<<elem.points<<std::endl;
-        }
+        current_mode=current_game_mode::HOF_MODE;
     }
 
     void runner_2048::loop()
@@ -526,7 +533,7 @@ namespace game_runner
                         current_mode=current_game_mode::MENU_MODE;
                     }
                 }
-                else
+                else if(current_mode==current_game_mode::MENU_MODE)
                 {
                     if(escape_button_pressed(event))
                     {
@@ -535,6 +542,12 @@ namespace game_runner
                     else
                     {
                         menu.trigger_event(event);
+                    }
+                }else
+                {
+                    if(escape_button_pressed(event))
+                    {
+                        current_mode=current_game_mode::MENU_MODE;
                     }
                 }
             }
@@ -545,10 +558,26 @@ namespace game_runner
             {
                 graphic.draw(app);
             }
-            else
+            else if(current_mode==current_game_mode::MENU_MODE)
             {
                 graphic.draw(app);
                 menu.draw_menu(app);
+            }
+            else
+            {
+                //Show the hall of fame.
+                int x_pos = 30,y_pos = 30;
+                for(auto elem:graphic.get_hof())
+                {
+                    std::stringstream ss;
+                    ss<<elem.date<<", Points: "<<elem.points<<", Level: "<<graphic.get_level(elem.points);
+
+                    hof_text.setString(ss.str().c_str());
+                    hof_text.setPosition(x_pos,y_pos);
+
+                    app.draw(hof_text);
+                    y_pos+=hof_text.getCharacterSize()+10;
+                }
             }
             // Update the window
             app.display();

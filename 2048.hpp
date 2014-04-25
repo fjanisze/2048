@@ -153,6 +153,7 @@ namespace graphic_2048
         long save_data(std::ofstream& out_stream);
         long load_data(std::ifstream& in_stream);
         void reset_board();
+        std::string get_level(int pt);
         std::vector<hof_entry>& get_hof();
     };
 }
@@ -164,7 +165,8 @@ namespace game_runner
     enum current_game_mode
     {
         MENU_MODE,
-        PLAY_MODE
+        PLAY_MODE,
+        HOF_MODE
     };
 
     class runner_2048
@@ -173,6 +175,10 @@ namespace game_runner
         menu_2048::game_menu menu;
         current_game_mode current_mode;
         sf::RenderWindow app;
+
+        sf::Font font;
+        sf::Text hof_text;
+
         void new_game_button();
         void save_game_button();
         void load_game_button();
