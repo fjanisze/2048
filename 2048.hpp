@@ -88,6 +88,20 @@ namespace graphic_2048
         sf::Text text;
     };
 
+    struct hof_entry
+    {
+        char date[20];
+        int points{0};
+        bool operator<(const hof_entry& other) const
+        {
+            return points<other.points;
+        }
+        hof_entry()
+        {
+            memset(date,0,20);
+        }
+    };
+
     template<typename T>
     using sq_matrix = simple_matrix::simple_square_matrix<T>;
 
@@ -102,6 +116,7 @@ namespace graphic_2048
             map_size;
         int points,
             last_hit;
+        std::vector<hof_entry> hof;
         bool game_over;
         sf::Texture game_over_texture;
         sf::Sprite game_over_sprite;
@@ -138,6 +153,7 @@ namespace graphic_2048
         long save_data(std::ofstream& out_stream);
         long load_data(std::ifstream& in_stream);
         void reset_board();
+        std::vector<hof_entry>& get_hof();
     };
 }
 
@@ -160,6 +176,7 @@ namespace game_runner
         void new_game_button();
         void save_game_button();
         void load_game_button();
+        void hof_game_button();
         bool escape_button_pressed(const sf::Event& event);
     public:
         runner_2048();

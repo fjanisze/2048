@@ -1,5 +1,6 @@
 #include "2048.hpp"
 #include <fstream>
+#include <chrono>
 
 static const bool run_regression = false; //Set to true to build the regression code
 
@@ -259,6 +260,20 @@ namespace graphic_2048
         set_info();
         //Game over?
         game_over = !check_is_possible_to_continue();
+        if(game_over)
+        {
+            //Save a new entry in the hall of fame
+            std::chrono::system_clock::time_point today = std::chrono::system_clock::now();
+            time_t tt;
+            tt=std::chrono::system_clock::to_time_t (today);
+            const char* cur_time=ctime(&tt);
+
+            hof_entry new_hof;
+            strncpy(new_hof.date,cur_time,strlen(cur_time));
+            new_hof.points=points;
+
+            hof.push_back(new_hof);
+        }
     }
 
     int graphic_2048::score_point(int x, int y)
@@ -361,7 +376,7 @@ namespace graphic_2048
 
     long graphic_2048::save_data(std::ofstream& out_stream)
     {
-        std::function<void(char*,std::size_t)> save([&](const char* data,std::size_t size)
+        std::function<void(const char*,std::size_t)> save([&](const char* data,std::size_t size)
         {
             out_stream.write(data,size);
         });
@@ -383,6 +398,7 @@ namespace graphic_2048
     {
         operation((char*)(&points),sizeof(int));
         operation((char*)(&last_hit),sizeof(int));
+        operation((char*)(&game_over),sizeof(bool));
         std::size_t pos_type_size=sizeof(decltype(grid_container.get(0,0)->border[0].position.x));
         for(int y=0;y<map_size;y++)
         {
@@ -399,6 +415,24 @@ namespace graphic_2048
                 operation((char*)(&num),sizeof(int));
             }
         }
+        //Hall of fame
+        size_t size = hof.size();
+        operation((char*)(&size),sizeof(size_t));
+        if(hof.empty()&&size>0)
+        {
+            //Seems this is a load operation, and size was set to >0 even if hof is 0
+            hof.resize(size);
+        }
+        for(int i=0;i<size;i++)
+        {
+            hof_entry& entry=hof[i];
+            operation((char*)(&entry),sizeof(hof_entry));
+        }
+    }
+
+    std::vector<hof_entry>& graphic_2048::get_hof()
+    {
+        return hof;
     }
 }
 
@@ -416,10 +450,12 @@ namespace game_runner
         std::function<void()> trigger_new_game([this](){new_game_button();});
         std::function<void()> trigger_save_game([this](){save_game_button();});
         std::function<void()> trigger_load_game([this](){load_game_button();});
+        std::function<void()> trigger_hof_game([this](){hof_game_button();});
         //Add the menu buttons
         menu.add_button("New game",trigger_new_game);
         menu.add_button("Load game",trigger_load_game);
         menu.add_button("Save game",trigger_save_game);
+        menu.add_button("Hall of fame",trigger_hof_game);
     }
 
     void runner_2048::new_game_button()
@@ -445,6 +481,16 @@ namespace game_runner
         {
             graphic.save_data(out_file);
             out_file.close();
+        }
+    }
+
+    void runner_2048::hof_game_button()
+    {
+        std::vector<graphic_2048::hof_entry> hof=graphic.get_hof();
+        std::sort(hof.rbegin(),hof.rend());
+        for(auto elem:hof)
+        {
+            std::cout<<elem.date<<": "<<elem.points<<std::endl;
         }
     }
 
