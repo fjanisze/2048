@@ -126,6 +126,7 @@ namespace graphic_2048
             "Worthless!",
             "Rat excrement!",
             "Rat!",
+            "Little dick!",
             "Half man!",
             "Still an half man!",
             "NSN developer!",
@@ -133,10 +134,13 @@ namespace graphic_2048
             "Pussy",
             "Big Pussy!",
             "Nice Pussy!",
-            "Very good pussy!"
+            "Very good pussy!",
+            "Ohh shit!",
+            "Do it again!",
+            "Chuck Norris!",
         };
-        int index = pt/512;
-        index = index>10?10:index;
+        int index = pt/(256*3);
+        index = index>14?14:index;
         return levels[index];
     }
 
