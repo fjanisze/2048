@@ -90,7 +90,7 @@ namespace graphic_2048
 
     struct hof_entry
     {
-        char date[20];
+        char date[30];
         int points{0};
         bool operator<(const hof_entry& other) const
         {

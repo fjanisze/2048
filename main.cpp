@@ -269,7 +269,7 @@ namespace graphic_2048
             const char* cur_time=ctime(&tt);
 
             hof_entry new_hof;
-            strncpy(new_hof.date,cur_time,strlen(cur_time));
+            strncpy(new_hof.date,cur_time,strlen(cur_time)-1);
             new_hof.points=points;
 
             hof.push_back(new_hof);
