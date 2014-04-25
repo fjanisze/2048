@@ -283,6 +283,20 @@ namespace regression_2048
         ASSERT_THROW(menu.add_button("test6",callback),std::runtime_error);
     }
 
+
+    TEST_F(game_menu_testsuit_basic, TrackingAreaSmallTest)
+    {
+        int x_menu_pos=800/2-(menu_2048::menu_width/2),
+            y_menu_pos=630/2-(menu_2048::menu_height/2);
+
+        ASSERT_FALSE(menu.is_in_the_tracking_area(0,0));
+        ASSERT_TRUE(menu.is_in_the_tracking_area(x_menu_pos,y_menu_pos));
+        ASSERT_TRUE(menu.is_in_the_tracking_area(x_menu_pos+menu_2048::menu_width,
+                                                 y_menu_pos+menu_2048::menu_height));
+        ASSERT_FALSE(menu.is_in_the_tracking_area(x_menu_pos+menu_2048::menu_width+1,
+                                                 y_menu_pos+menu_2048::menu_height));
+    }
+
     using ::testing::_;
 
     //Mock for the RenderWindow class
@@ -316,9 +330,9 @@ namespace regression_2048
     TEST_F(game_menu_testsuit_drawing, AddButtonsAndDraw)
     {
         RenderWindowMock renderWnd;
-        EXPECT_CALL(renderWnd,draw(_)).Times(6);
+        EXPECT_CALL(renderWnd,draw(_)).Times(11);
 
-         ASSERT_NO_THROW(menu.draw_menu(renderWnd));
+        ASSERT_NO_THROW(menu.draw_menu(renderWnd));
     }
 
 }

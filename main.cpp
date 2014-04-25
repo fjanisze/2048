@@ -319,6 +319,58 @@ namespace graphic_2048
     }
 }
 
+namespace game_runner
+{
+    runner_2048::runner_2048() : graphic(800,600,4),
+                                 menu(800,600)
+    {
+        current_mode=current_game_mode::MENU_MODE;//By default
+        app.create(sf::VideoMode(800, 630), "2048");
+
+        graphic.add_new_number(2);
+        graphic.update_num_color();
+    }
+
+    void runner_2048::loop()
+    {
+        // Start the game loop
+        while (app.isOpen())
+        {
+            // Process the events
+            sf::Event event;
+            while (app.pollEvent(event))
+            {
+                switch(event.type)
+                {
+                case sf::Event::Closed:
+                    app.close();
+                    break;
+                case sf::Event::MouseButtonPressed:
+                    graphic.click(event);
+                    break;
+                case sf::Event::KeyPressed:
+                    if(graphic.can_continue())
+                    {
+                        graphic.button(event);
+                    }
+                    break;
+                default:
+                    //Ignored
+                    ;
+                };
+            }
+
+            // Clear screen
+            app.clear(sf::Color::Black);
+
+            graphic.draw(app);
+            // Update the window
+            app.display();
+        }
+    }
+
+}
+
 int main(int argc,char** argv)
 {
     if(run_regression)
@@ -326,46 +378,8 @@ int main(int argc,char** argv)
         ::testing::InitGoogleMock(&argc,argv);
         return RUN_ALL_TESTS();
     }
-    // Create the main window
-    sf::RenderWindow app(sf::VideoMode(800, 630), "2048");
-    graphic_2048::graphic_2048 game(800,600,4);
-    game.add_new_number(2);
-    game.update_num_color();
-
-	// Start the game loop
-    while (app.isOpen())
-    {
-        // Process events
-        sf::Event event;
-        while (app.pollEvent(event))
-        {
-            switch(event.type)
-            {
-            case sf::Event::Closed:
-                app.close();
-                break;
-            case sf::Event::MouseButtonPressed:
-                game.click(event);
-                break;
-            case sf::Event::KeyPressed:
-                if(game.can_continue())
-                {
-                    game.button(event);
-                }
-                break;
-            default:
-                //Ignored
-                ;
-            };
-        }
-
-        // Clear screen
-        app.clear(sf::Color::Black);
-
-        game.draw(app);
-        // Update the window
-        app.display();
-    }
+    game_runner::runner_2048 runner;
+    runner.loop();
 
     return EXIT_SUCCESS;
 }

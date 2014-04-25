@@ -15,28 +15,34 @@ namespace menu_2048
 {
     static const int amount_of_buttons{5};
 
+    static const int button_height{50};
+    static const int button_width{180};
+
+    static const int menu_height{ button_height*amount_of_buttons+100 };
+    static const int menu_width{200};
+
     struct button_info
     {
         int x_position,
             y_position;
         int height,
             width;
+        std::string button_name;
     };
 
     class game_menu
     {
-        int x_size,
-            y_size;
         int x_menu_pos,
             y_menu_pos;
 
-        static int menu_width,
-                   menu_height;
         static button_info buttons_position[amount_of_buttons];
+        int next_button_index;
         sf::Texture tx_menu_bg,
                     tx_button_bg;
         sf::Sprite sprite_menu_bg,
                    sprite_button_bg;
+        sf::Text button_default_text;
+        sf::Font font;
 
         std::map<std::string,std::function<void()>> callback_map;
         void load_texture();
@@ -46,6 +52,8 @@ namespace menu_2048
         void trigger_button(const std::string& name);
         template<typename RenderClassT>
         void draw_menu(RenderClassT& rnd);
+    public: //Track the mouse move actions
+        bool is_in_the_tracking_area(int x,int y);
     };
 
     template<typename RenderClassT>
@@ -54,10 +62,18 @@ namespace menu_2048
         //First the background the the buttons
         rnd.draw(sprite_menu_bg);
         //Show the buttons
-        for(auto elem:buttons_position)
+        button_info* elem;
+        for(int i=0;i<next_button_index;i++)
         {
-            sprite_button_bg.setPosition(sf::Vector2f(elem.x_position,elem.y_position));
+            elem=&buttons_position[i];
+            sf::Vector2f position{sf::Vector2f(x_menu_pos+elem->x_position,y_menu_pos+elem->y_position)};
+
+            sprite_button_bg.setPosition(position);
             rnd.draw(sprite_button_bg);
+            //Draw the button name
+            button_default_text.setPosition(position);
+            button_default_text.setString(elem->button_name.c_str());
+            rnd.draw(button_default_text);
         }
     }
 }
@@ -73,7 +89,6 @@ namespace graphic_2048
 
     template<typename T>
     using sq_matrix = simple_matrix::simple_square_matrix<T>;
-
 
     class graphic_2048
     {
@@ -117,5 +132,25 @@ namespace graphic_2048
         void update_num_color();
         bool can_continue();
         int get_score();
+    };
+}
+
+namespace game_runner
+{
+    enum current_game_mode
+    {
+        MENU_MODE,
+        PLAY_MODE
+    };
+
+    class runner_2048
+    {
+        graphic_2048::graphic_2048 graphic;
+        menu_2048::game_menu menu;
+        current_game_mode current_mode;
+        sf::RenderWindow app;
+    public:
+        runner_2048();
+        void loop();
     };
 }
