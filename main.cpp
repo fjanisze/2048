@@ -207,6 +207,7 @@ namespace graphic_2048
         num_container.rotate(angle);
         bool moved=false;
         //Now do the sum
+        last_hit=0;
         for(int y=0;y<map_size;y++)
         {
             int cur_x=map_size-1;
@@ -284,7 +285,7 @@ namespace graphic_2048
 
     int graphic_2048::score_point(int x, int y)
     {
-        last_hit=num_container.get(x,y)*2;
+        last_hit+=num_container.get(x,y)*2;
         points+=last_hit;
         num_container.get(x,y)*=2;
         return points;
@@ -395,6 +396,7 @@ namespace graphic_2048
         {
             in_stream.read(data,size);
         });
+        hof.clear();
         save_and_load_impl(load);
         update_num_color();
         set_info();
