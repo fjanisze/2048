@@ -14,10 +14,8 @@
 namespace menu_2048
 {
     static const int amount_of_buttons{5};
-
     static const int button_height{50};
     static const int button_width{180};
-
     static const int menu_height{ button_height*amount_of_buttons+100 };
     static const int menu_width{200};
 
@@ -136,11 +134,15 @@ namespace graphic_2048
         bool can_continue();
         int get_score();
         void trigger_event(const sf::Event& event);
+        long save_data(std::ofstream& out_stream);
+        long load_data(std::ifstream& in_stream);
     };
 }
 
 namespace game_runner
 {
+    static const std::string data_filename{"2048data.dat"};
+
     enum current_game_mode
     {
         MENU_MODE,
@@ -154,6 +156,7 @@ namespace game_runner
         current_game_mode current_mode;
         sf::RenderWindow app;
         void new_game_button();
+        void save_game_button();
         void load_game_button();
         bool escape_button_pressed(const sf::Event& event);
     public:

@@ -1,4 +1,5 @@
 #include "2048.hpp"
+#include <fstream>
 
 static const bool run_regression = false; //Set to true to build the regression code
 
@@ -339,6 +340,53 @@ namespace graphic_2048
             ;
         }
     }
+
+    long graphic_2048::save_data(std::ofstream& out_stream)
+    {
+        out_stream.write((char*)(&points),sizeof(int));
+        out_stream.write((char*)(&last_hit),sizeof(int));
+        std::size_t pos_type_size=sizeof(decltype(grid_container.get(0,0)->border[0].position.x));
+        for(int y=0;y<map_size;y++)
+        {
+            for(int x=0;x<map_size;x++)
+            {
+                std::shared_ptr<single_grid> grid=grid_container.get(x,y);
+                sf::VertexArray* vertex=&grid->border;
+                for(int i=0;i<4;i++)
+                {
+                    out_stream.write((char*)(&((*vertex)[i].position.x)),pos_type_size);
+                    out_stream.write((char*)(&((*vertex)[i].position.y)),pos_type_size);
+                }
+                int num = num_container.get(x,y);
+                out_stream.write((char*)(&num),sizeof(int));
+            }
+        }
+        return out_stream.tellp();
+    }
+
+    long graphic_2048::load_data(std::ifstream& in_stream)
+    {
+        in_stream.read((char*)(&points),sizeof(int));
+        in_stream.read((char*)(&last_hit),sizeof(int));
+        std::size_t pos_type_size=sizeof(decltype(grid_container.get(0,0)->border[0].position.x));
+        for(int y=0;y<map_size;y++)
+        {
+            for(int x=0;x<map_size;x++)
+            {
+                std::shared_ptr<single_grid> grid=grid_container.get(x,y);
+                sf::VertexArray* vertex=&grid->border;
+                for(int i=0;i<4;i++)
+                {
+                    in_stream.read((char*)(&((*vertex)[i].position.x)),pos_type_size);
+                    in_stream.read((char*)(&((*vertex)[i].position.y)),pos_type_size);
+                }
+                int num = num_container.get(x,y);
+                in_stream.read((char*)(&num),sizeof(int));
+                num_container.get(x,y)=num;
+            }
+        }
+        update_num_color();
+    }
 }
 
 namespace game_runner
@@ -353,10 +401,12 @@ namespace game_runner
         graphic.update_num_color();
 
         std::function<void()> trigger_new_game([this](){new_game_button();});
+        std::function<void()> trigger_save_game([this](){save_game_button();});
         std::function<void()> trigger_load_game([this](){load_game_button();});
         //Add the menu buttons
         menu.add_button("New game",trigger_new_game);
         menu.add_button("Load game",trigger_load_game);
+        menu.add_button("Save game",trigger_save_game);
     }
 
     void runner_2048::new_game_button()
@@ -367,7 +417,22 @@ namespace game_runner
 
     void runner_2048::load_game_button()
     {
-        std::cout<<"LOAD GAME\n";
+        std::ifstream in_file{data_filename,std::ios_base::binary};
+        if(in_file)
+        {
+            graphic.load_data(in_file);
+            in_file.close();
+        }
+    }
+
+    void runner_2048::save_game_button()
+    {
+        std::ofstream out_file{data_filename,std::ios_base::binary};
+        if(out_file)
+        {
+            graphic.save_data(out_file);
+            out_file.close();
+        }
     }
 
     void runner_2048::loop()
