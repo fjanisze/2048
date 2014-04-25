@@ -214,6 +214,7 @@ namespace graphic_2048
                         score_point(cur_x,y);
                         num_container.get(x,y)=0;
                         --cur_x;
+                        moved=true;
                     }
                     else
                     {
