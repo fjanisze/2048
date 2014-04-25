@@ -1,6 +1,6 @@
 #include "2048.hpp"
 
-static const bool run_regression = false; //Set to true to build the regression code
+static const bool run_regression = true; //Set to true to build the regression code
 
 namespace graphic_2048
 {
@@ -317,6 +317,25 @@ namespace graphic_2048
     {
         return !game_over;
     }
+
+    void graphic_2048::trigger_event(const sf::Event& event)
+    {
+        switch(event.type)
+        {
+        case sf::Event::MouseButtonPressed:
+            click(event);
+            break;
+        case sf::Event::KeyPressed:
+            if(can_continue())
+            {
+                button(event);
+            }
+            break;
+        default:
+            //Ignored
+            ;
+        }
+    }
 }
 
 namespace game_runner
@@ -329,6 +348,15 @@ namespace game_runner
 
         graphic.add_new_number(2);
         graphic.update_num_color();
+
+        std::function<void()> trigger_new_game([this](){new_game_button();});
+        //Add the menu buttons
+        menu.add_button("New game",trigger_new_game);
+    }
+
+    void runner_2048::new_game_button()
+    {
+        std::cout<<"NEW GAME\n";
     }
 
     void runner_2048::loop()
@@ -338,32 +366,41 @@ namespace game_runner
         {
             // Process the events
             sf::Event event;
+
             while (app.pollEvent(event))
             {
+                //Generic events
                 switch(event.type)
                 {
                 case sf::Event::Closed:
                     app.close();
                     break;
-                case sf::Event::MouseButtonPressed:
-                    graphic.click(event);
-                    break;
-                case sf::Event::KeyPressed:
-                    if(graphic.can_continue())
-                    {
-                        graphic.button(event);
-                    }
-                    break;
                 default:
                     //Ignored
                     ;
                 };
+                //Specific events
+                if(current_mode==current_game_mode::PLAY_MODE)
+                {
+                    graphic.trigger_event(event);
+                }
+                else
+                {
+                    menu.trigger_event(event);
+                }
             }
 
             // Clear screen
             app.clear(sf::Color::Black);
-
-            graphic.draw(app);
+            if(current_mode==current_game_mode::PLAY_MODE)
+            {
+                graphic.draw(app);
+            }
+            else
+            {
+                graphic.draw(app);
+                menu.draw_menu(app);
+            }
             // Update the window
             app.display();
         }

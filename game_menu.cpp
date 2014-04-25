@@ -53,6 +53,24 @@ namespace menu_2048
         callback_map[name]();
     }
 
+    bool game_menu::trigger_button(int x,int y)
+    {
+        //Check if is a button, trigger if possible.
+        int x_pos=x-x_menu_pos,
+            y_pos=y-y_menu_pos;
+        for(auto button: buttons_position)
+        {
+            if((x_pos>=button.x_position)&&(x_pos<=button.x_position+button_width)&&
+               (y_pos>=button.y_position)&&(y_pos<=button.y_position+button_height))
+            {
+                //Ok, trigger this button
+                trigger_button(button.button_name);
+                return true;
+            }
+        }
+        return false;
+    }
+
     void game_menu::load_texture()
     {
         if(tx_menu_bg.loadFromFile("texture/menu_bg.png")&&
@@ -72,6 +90,25 @@ namespace menu_2048
            (y>=y_menu_pos)&&(y<=(y_menu_pos+menu_height)))
             return true;
         return false;
+    }
+
+    bool game_menu::is_in_the_tracking_area(const sf::Event& event)
+    {
+        return is_in_the_tracking_area(event.mouseButton.x,event.mouseButton.y);
+    }
+
+    void game_menu::trigger_event(const sf::Event& event)
+    {
+        if(!is_in_the_tracking_area(event)) return;
+        switch(event.type)
+        {
+        case sf::Event::MouseButtonPressed:
+            trigger_button(event.mouseButton.x,event.mouseButton.y);
+            break;
+        default:
+            //Ignored
+            ;
+        }
     }
 }
 

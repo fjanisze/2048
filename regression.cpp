@@ -251,9 +251,13 @@ namespace regression_2048
     class game_menu_testsuit_basic : public ::testing::Test
     {
     public:
+        int x_menu_pos;
+        int y_menu_pos;
         menu_2048::game_menu menu;
         game_menu_testsuit_basic():menu(800,630)
         {
+            x_menu_pos=(800/2)-(menu_2048::menu_width/2);
+            y_menu_pos=(630/2)-(menu_2048::menu_height/2);
         }
     };
 
@@ -281,6 +285,54 @@ namespace regression_2048
         ASSERT_EQ(4, menu.add_button("test4",callback));
         ASSERT_EQ(5, menu.add_button("test5",callback));
         ASSERT_THROW(menu.add_button("test6",callback),std::runtime_error);
+    }
+
+    TEST_F(game_menu_testsuit_basic, AddButtonsAndClick)
+    {
+        using namespace menu_2048;
+
+        int counter1{0},
+            counter2{0},
+            counter3{0};
+        std::function<void()> button1([&](){
+                ++counter1;
+        });
+        std::function<void()> button2([&](){
+                ++counter2;
+        });
+        std::function<void()> button3([&](){
+                ++counter3;
+        });
+        //Add the buttons
+        ASSERT_EQ(1, menu.add_button("test",button1));
+        ASSERT_EQ(2, menu.add_button("test2",button2));
+        ASSERT_EQ(3, menu.add_button("test3",button3));
+        //Emulate a button click
+        ASSERT_TRUE(menu.trigger_button((menu_width-button_width)/2+x_menu_pos,
+                                        10+y_menu_pos));
+        ASSERT_TRUE(menu.trigger_button((menu_width-button_width)/2+x_menu_pos,
+                                        button_height*1+20+y_menu_pos));
+        ASSERT_TRUE(menu.trigger_button((menu_width-button_width)/2+x_menu_pos,
+                                        button_height*2+30+y_menu_pos));
+
+        //Trigger some other valid buttons
+        ASSERT_TRUE(menu.trigger_button((menu_width-button_width)/2+x_menu_pos+button_width,
+                                        10+y_menu_pos));
+        ASSERT_TRUE(menu.trigger_button((menu_width-button_width)/2+x_menu_pos,
+                                        button_height*1+20+y_menu_pos+button_height));
+        ASSERT_TRUE(menu.trigger_button((menu_width-button_width)/2+x_menu_pos+5,
+                                        button_height*2+30+y_menu_pos+5));
+        //Trigger not valid positions
+        ASSERT_FALSE(menu.trigger_button((menu_width-button_width)/2+x_menu_pos-1,
+                                        10+y_menu_pos));
+        ASSERT_FALSE(menu.trigger_button((menu_width-button_width)/2+x_menu_pos,
+                                        button_height*1+20+y_menu_pos-1));
+        ASSERT_FALSE(menu.trigger_button((menu_width-button_width)/2+x_menu_pos-1,
+                                        button_height*2+30+y_menu_pos-1));
+        //Check the counters for the callback functions
+        ASSERT_EQ(2,counter1);
+        ASSERT_EQ(2,counter2);
+        ASSERT_EQ(2,counter3);
     }
 
 

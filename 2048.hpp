@@ -50,10 +50,13 @@ namespace menu_2048
         game_menu(int window_x_size,int window_y_size);
         int add_button(const std::string& name, std::function<void()>& call_back);
         void trigger_button(const std::string& name);
+        bool trigger_button(int x,int y);
         template<typename RenderClassT>
         void draw_menu(RenderClassT& rnd);
+        void trigger_event(const sf::Event& event);
     public: //Track the mouse move actions
         bool is_in_the_tracking_area(int x,int y);
+        bool is_in_the_tracking_area(const sf::Event& event);
     };
 
     template<typename RenderClassT>
@@ -122,16 +125,17 @@ namespace graphic_2048
         void set_info();
         bool check_is_possible_to_continue();
         int score_point(int x, int y);
+        void click(const sf::Event& ev);
+        void button(const sf::Event& ev);
     public:
         graphic_2048(int x_size,int y_size,int size);
         void draw(sf::RenderWindow& rnd);
-        void click(const sf::Event& ev);
-        void button(const sf::Event& ev);
         void action(simple_matrix::rotation_angle angle);
         void add_new_number(int amount=1);
         void update_num_color();
         bool can_continue();
         int get_score();
+        void trigger_event(const sf::Event& event);
     };
 }
 
@@ -149,6 +153,7 @@ namespace game_runner
         menu_2048::game_menu menu;
         current_game_mode current_mode;
         sf::RenderWindow app;
+        void new_game_button();
     public:
         runner_2048();
         void loop();
