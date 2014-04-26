@@ -34,9 +34,9 @@ namespace graphic_2048
                 //grid->border[4].position = sf::Vector2f( x*(x_s) , y*(y_s) );
 
                 grid->text.setFont(font);
-                grid->text.setCharacterSize(45);
+                grid->text.setCharacterSize(40);
                 grid->text.setColor(sf::Color::Black);
-                grid->text.setPosition(sf::Vector2f(x*(x_s)+x_s/2.2,y*(y_s)+y_s/2.2));
+                grid->text.setPosition(sf::Vector2f(x*(x_s)+4,y*(y_s)+(y_s-grid->text.getCharacterSize())/2.3));
 
                 grid_container.get(x,y)=grid;
                 num_container.get(x,y)=0;
@@ -139,7 +139,7 @@ namespace graphic_2048
             "Do it again!",
             "Chuck Norris!",
         };
-        int index = pt/(256*3);
+        int index = pt/1024;
         index = index>14?14:index;
         return levels[index];
     }
@@ -154,7 +154,6 @@ namespace graphic_2048
         }
         ss<<" Level: "<<get_level(points);
         info_bar_text.setString(ss.str().c_str());
-
     }
 
     void graphic_2048::click(const sf::Event& ev)
@@ -452,6 +451,7 @@ namespace game_runner
     {
         current_mode=current_game_mode::MENU_MODE;//By default
         app.create(sf::VideoMode(800, 630), "2048");
+        app.setFramerateLimit(40);
 
         graphic.add_new_number(2);
         graphic.update_num_color();

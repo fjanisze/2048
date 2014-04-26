@@ -1,4 +1,5 @@
 #include <stdexcept>
+#include <iostream>
 
 #ifndef SIMPLE_MATRIX_HPP
 #define SIMPLE_MATRIX_HPP
