@@ -10,7 +10,7 @@ namespace graphic_2048
     graphic_2048::graphic_2048(int x_size,int y_size,int size) : x_s(x_size/size), y_s(y_size/size), map_size(size),
                                                                      grid_container(size), num_container(size),
                                                                      random_coord_index(0),points(0),game_over(false),
-                                                                     last_hit(0)
+                                                                     last_hit(0),best_hit(0)
     {
         if(!font.loadFromFile("consola.ttf"))
         {
@@ -129,18 +129,22 @@ namespace graphic_2048
             "Little dick!",
             "Half man!",
             "Still an half man!",
+            "Man with a small dick",
+            "Faceless dick!",
             "NSN developer!",
             "Human being!",
+            "Justin bieber fan!",
             "Pussy",
             "Big Pussy!",
             "Nice Pussy!",
             "Very good pussy!",
-            "Ohh shit!",
-            "Do it again!",
-            "Chuck Norris!",
+            "drunken dwarf!",
+            "drunken dwarf with a pussy!",
+            "Failed porn actor!",
+            "Pornstar actress without boobs"
         };
         int index = pt/1024;
-        index = index>14?14:index;
+        index = index>19?19:index;
         return levels[index];
     }
 
@@ -150,7 +154,12 @@ namespace graphic_2048
         ss<<"Points "<<points;
         if(last_hit>0)
         {
-            ss<<" (+"<<last_hit<<")";
+            ss<<" (+"<<last_hit;
+            if(best_hit>0)
+            {
+                ss<<",best: "<<best_hit;
+            }
+            ss<<")";
         }
         ss<<" Level: "<<get_level(points);
         info_bar_text.setString(ss.str().c_str());
@@ -285,6 +294,7 @@ namespace graphic_2048
     int graphic_2048::score_point(int x, int y)
     {
         last_hit+=num_container.get(x,y)*2;
+        best_hit=std::max(best_hit,last_hit);
         points+=last_hit;
         num_container.get(x,y)*=2;
         return points;
@@ -405,6 +415,7 @@ namespace graphic_2048
     {
         operation((char*)(&points),sizeof(int));
         operation((char*)(&last_hit),sizeof(int));
+        operation((char*)(&best_hit),sizeof(int));
         operation((char*)(&game_over),sizeof(bool));
         std::size_t pos_type_size=sizeof(decltype(grid_container.get(0,0)->border[0].position.x));
         for(int y=0;y<map_size;y++)

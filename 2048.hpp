@@ -117,7 +117,8 @@ namespace graphic_2048
             y_s,
             map_size;
         int points,
-            last_hit;
+            last_hit,
+            best_hit;
         std::vector<hof_entry> hof;
         bool game_over;
         sf::Texture game_over_texture;
