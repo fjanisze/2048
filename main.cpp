@@ -469,11 +469,13 @@ namespace game_runner
         std::function<void()> trigger_save_game([this](){save_game_button();});
         std::function<void()> trigger_load_game([this](){load_game_button();});
         std::function<void()> trigger_hof_game([this](){hof_game_button();});
+        std::function<void()> trigger_quit_game([this](){quit_game_button();});
         //Add the menu buttons
         menu.add_button("New game",trigger_new_game);
         menu.add_button("Load game",trigger_load_game);
         menu.add_button("Save game",trigger_save_game);
         menu.add_button("Hall of fame",trigger_hof_game);
+        menu.add_button("Quit",trigger_quit_game);
     }
 
     void runner_2048::new_game_button()
@@ -505,6 +507,11 @@ namespace game_runner
     void runner_2048::hof_game_button()
     {
         current_mode=current_game_mode::HOF_MODE;
+    }
+
+    void runner_2048::quit_game_button()
+    {
+        exit(0);
     }
 
     void runner_2048::loop()

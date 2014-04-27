@@ -185,6 +185,7 @@ namespace game_runner
         void save_game_button();
         void load_game_button();
         void hof_game_button();
+        void quit_game_button();
         bool escape_button_pressed(const sf::Event& event);
     public:
         runner_2048();
