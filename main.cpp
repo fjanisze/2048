@@ -83,7 +83,7 @@ namespace graphic_2048
         info_bar_text.setPosition(sf::Vector2f(10,y_size+2));
 
         //Game over sprite
-        if (!game_over_texture.loadFromFile("over.png"))
+        if (!game_over_texture.loadFromFile("texture/over.png"))
         {
             throw std::runtime_error("HOLY SHIT! Unable to load the 'game over' texture!");
         }
