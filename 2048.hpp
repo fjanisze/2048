@@ -100,7 +100,7 @@ namespace graphic_2048
         }
         hof_entry()
         {
-            memset(date,0,20);
+            memset(date,0,30);
         }
     };
 
