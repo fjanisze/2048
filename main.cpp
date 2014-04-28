@@ -157,7 +157,7 @@ namespace graphic_2048
             ss<<" (+"<<last_hit;
             if(best_hit>0)
             {
-                ss<<",best: "<<best_hit;
+                ss<<",best: +"<<best_hit;
             }
             ss<<")";
         }
@@ -286,6 +286,7 @@ namespace graphic_2048
             hof_entry new_hof;
             strncpy(new_hof.date,cur_time,strlen(cur_time)-1);
             new_hof.points=points;
+            new_hof.best_hit=best_hit;
 
             hof.push_back(new_hof);
         }
@@ -293,9 +294,10 @@ namespace graphic_2048
 
     int graphic_2048::score_point(int x, int y)
     {
-        last_hit+=num_container.get(x,y)*2;
+        int score = num_container.get(x,y)*2;
+        last_hit+=score;
         best_hit=std::max(best_hit,last_hit);
-        points+=last_hit;
+        points+=score;
         num_container.get(x,y)*=2;
         return points;
     }
@@ -383,7 +385,7 @@ namespace graphic_2048
                 num_container.get(x,y)=0;
             }
         }
-        points=last_hit=0;
+        points=last_hit=best_hit=0;
         game_over=false;
         add_new_number(2);
         update_num_color();
@@ -594,7 +596,7 @@ namespace game_runner
                 for(auto elem:graphic.get_hof())
                 {
                     std::stringstream ss;
-                    ss<<elem.date<<", Points: "<<elem.points<<", Level: "<<graphic.get_level(elem.points);
+                    ss<<elem.date<<", PT: "<<elem.points<<" (+"<<elem.best_hit<<"), LV: "<<graphic.get_level(elem.points);
 
                     hof_text.setString(ss.str().c_str());
                     hof_text.setPosition(x_pos,y_pos);

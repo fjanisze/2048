@@ -94,6 +94,7 @@ namespace graphic_2048
     {
         char date[30];
         int points{0};
+        int best_hit{0};
         bool operator<(const hof_entry& other) const
         {
             return points<other.points;
