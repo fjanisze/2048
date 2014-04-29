@@ -1,3 +1,4 @@
+
 #include <SFML/Graphics.hpp>
 #include "game_menu.hpp"
 #include "game_graphic.hpp"
@@ -15,9 +16,10 @@ namespace game_runner
         HOF_MODE
     };
 
-    class runner_2048
+    class game_runner
     {
-        graphic_2048::graphic_2048 graphic;
+        game_core::game_core core;
+        graphic_ui::graphic_ui graphic;
         menu_2048::game_menu menu;
         current_game_mode current_mode;
         sf::RenderWindow app;
@@ -32,7 +34,7 @@ namespace game_runner
         void quit_game_button();
         bool escape_button_pressed(const sf::Event& event);
     public:
-        runner_2048();
+        game_runner();
         void loop();
     };
 }

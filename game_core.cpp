@@ -3,11 +3,19 @@
 namespace game_core
 {
 
-    game_core::game_core(int board_size) : map_size(board_size),points(0),
-                                    last_hit(0),best_hit(0),game_over(false),
+    game_core::game_core(int board_size):map_size(board_size),game_over(false),
                                     num_container(board_size)
     {
         reset_board();
+        //Random number generator, use the marsenne twister engine
+        std::random_device rd;
+        std::mt19937 en(rd()); //marsenne twister engine
+        std::uniform_int_distribution<> generator{0,map_size-1};
+        for(int i=0;i<10000;i++)
+        {
+            random_coords.push_back(std::make_pair<int,int>(generator(en),generator(en)));
+        }
+
     }
 
     void game_core::get_random_coord(int& x,int& y)
@@ -75,12 +83,24 @@ namespace game_core
         }while(amount>0);
     }
 
+    int game_core::get_number(int x,int y)
+    {
+        if((x<0||x>=map_size)||(y<0||y>=map_size)) throw std::runtime_error("HOLY SHIT!! out of range in get_number");
+        return num_container.get(x,y);
+    }
+
+    void game_core::set_number(int x,int y,int n)
+    {
+        if((x<0||x>=map_size)||(y<0||y>=map_size)) throw std::runtime_error("HOLY SHIT!! out of range in set_number");
+        num_container.get(x,y)=n;
+    }
+
     bool game_core::perform_the_move(simple_matrix::rotation_angle angle)
     {
         num_container.rotate(angle);
         bool moved=false;
         //Now do the sum
-        last_hit=0;
+        game_score.last_hit=0;
         for(int y=0;y<map_size;y++)
         {
             int cur_x=map_size-1;
@@ -141,8 +161,8 @@ namespace game_core
 
         hof_entry new_hof;
         strncpy(new_hof.date,cur_time,strlen(cur_time)-1);
-        new_hof.points=points;
-        new_hof.best_hit=best_hit;
+        new_hof.points=game_score.points;
+        new_hof.best_hit=game_score.best_hit;
 
         hof.push_back(new_hof);
     }
@@ -169,16 +189,16 @@ namespace game_core
     int game_core::score_point(int x, int y)
     {
         int score = num_container.get(x,y)*2;
-        last_hit+=score;
-        best_hit=std::max(best_hit,last_hit);
-        points+=score;
+        game_score.last_hit+=score;
+        game_score.best_hit=std::max(game_score.best_hit,game_score.last_hit);
+        game_score.points+=score;
         num_container.get(x,y)*=2;
-        return points;
+        return game_score.points;
     }
 
-    int game_core::get_score()
+    const points_info& game_core::get_score()
     {
-        return points;
+        return game_score;
     }
 
     bool game_core::check_is_possible_to_continue()
@@ -208,9 +228,8 @@ namespace game_core
                 num_container.get(x,y)=0;
             }
         }
-        points=last_hit=best_hit=0;
+        game_score.reset();
         game_over=false;
-        add_new_number(2);
     }
 
     std::vector<hof_entry>& game_core::get_hof()

@@ -8,6 +8,7 @@
 #include <utility>
 #include <cmath>
 #include <functional>
+#include <SFML/Graphics.hpp>
 
 namespace menu_2048
 {

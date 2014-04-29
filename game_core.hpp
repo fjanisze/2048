@@ -1,3 +1,6 @@
+#ifndef GAME_CORE_HPP
+#define GAME_CORE_HPP
+
 #include "simple_matrix.hpp"
 #include <iostream>
 #include <fstream>
@@ -11,7 +14,7 @@
 #include <chrono>
 #include <algorithm>
 
-static const bool run_regression = true; //Set to true to build the regression code
+static const bool run_regression = false; //Set to true to build the regression code
 
 namespace game_core
 {
@@ -30,6 +33,21 @@ namespace game_core
         }
     };
 
+    struct points_info
+    {
+        int points,
+            last_hit,
+            best_hit;
+        points_info():points(0),last_hit(0),best_hit(0)
+        {}
+        void reset()
+        {
+            points=0;
+            last_hit=0;
+            best_hit=0;
+        }
+    };
+
     template<typename T>
     using sq_matrix = simple_matrix::simple_square_matrix<T>;
 
@@ -38,10 +56,8 @@ namespace game_core
     class game_core
     {
     protected:
-        int points,
-            last_hit,
-            best_hit;
         bool game_over;
+        points_info game_score;
         int map_size;
 
         std::vector<hof_entry> hof;
@@ -58,11 +74,16 @@ namespace game_core
         bool check_is_possible_to_continue();
         bool can_continue();
         void add_new_number(int amount=1);
+        int get_number(int x,int y);
+        void set_number(int x,int y,int n);
+        const points_info& get_score();
         void action(simple_matrix::rotation_angle angle);
         int score_point(int x, int y);
-        int get_score();
         void reset_board();
+
         std::string get_level(int pt);
         std::vector<hof_entry>& get_hof();
     };
 }
+
+#endif //GAME_CORE_HPP

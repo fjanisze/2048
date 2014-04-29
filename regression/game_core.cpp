@@ -59,7 +59,7 @@ namespace game_core_regression
         ASSERT_EQ(4,num->get(2,3));
         ASSERT_EQ(4,num->get(3,3));
 
-        ASSERT_EQ(32,game.get_score());
+        ASSERT_EQ(32,game.get_score().points);
     }
 
     TEST_F(game_core_basictest,MoveDownAndThenLeft)
@@ -78,7 +78,7 @@ namespace game_core_regression
         ASSERT_EQ(2,num->get(1,3));
         ASSERT_EQ(2,num->get(2,3));
         ASSERT_EQ(2,num->get(3,3));
-        ASSERT_EQ(8,game.get_score());
+        ASSERT_EQ(8,game.get_score().points);
 
         //Move left
         game.action(simple_matrix::rotation_angle::rotate_180);
@@ -105,7 +105,7 @@ namespace game_core_regression
         ASSERT_EQ(16,num->get(2,2));
         ASSERT_EQ(4,num->get(0,3));
         ASSERT_EQ(4,num->get(1,3));
-        ASSERT_EQ(32,game.get_score());
+        ASSERT_EQ(32,game.get_score().points);
 
         //Up
         game.action(simple_matrix::rotation_angle::rotate_90);
@@ -116,7 +116,7 @@ namespace game_core_regression
         ASSERT_EQ(8,num->get(1,1));
         ASSERT_EQ(16,num->get(0,2));
         ASSERT_EQ(4,num->get(0,3));
-        ASSERT_EQ(40,game.get_score());
+        ASSERT_EQ(40,game.get_score().points);
     }
 
 }
