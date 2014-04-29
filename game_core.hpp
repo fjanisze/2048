@@ -11,7 +11,7 @@
 #include <chrono>
 #include <algorithm>
 
-static const bool run_regression = false; //Set to true to build the regression code
+static const bool run_regression = true; //Set to true to build the regression code
 
 namespace game_core
 {
@@ -37,6 +37,7 @@ namespace game_core
 
     class game_core
     {
+    protected:
         int points,
             last_hit,
             best_hit;
@@ -50,7 +51,10 @@ namespace game_core
         num_container_t  num_container;
 
         void get_random_coord(int& x,int& y);
+        bool perform_the_move(simple_matrix::rotation_angle angle);
+        void add_new_hof_entry();
     public:
+        game_core(int board_size);
         bool check_is_possible_to_continue();
         bool can_continue();
         void add_new_number(int amount=1);

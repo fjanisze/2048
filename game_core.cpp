@@ -3,6 +3,13 @@
 namespace game_core
 {
 
+    game_core::game_core(int board_size) : map_size(board_size),points(0),
+                                    last_hit(0),best_hit(0),game_over(false),
+                                    num_container(board_size)
+    {
+        reset_board();
+    }
+
     void game_core::get_random_coord(int& x,int& y)
     {
         if(random_coord_index>=random_coords.size())
@@ -68,8 +75,7 @@ namespace game_core
         }while(amount>0);
     }
 
-
-    void game_core::action(simple_matrix::rotation_angle angle)
+    bool game_core::perform_the_move(simple_matrix::rotation_angle angle)
     {
         num_container.rotate(angle);
         bool moved=false;
@@ -122,6 +128,29 @@ namespace game_core
             //Ignored
             ;
         };
+        return moved;
+    }
+
+    void game_core::add_new_hof_entry()
+    {
+        //Save a new entry in the hall of fame
+        std::chrono::system_clock::time_point today = std::chrono::system_clock::now();
+        time_t tt;
+        tt=std::chrono::system_clock::to_time_t (today);
+        const char* cur_time=ctime(&tt);
+
+        hof_entry new_hof;
+        strncpy(new_hof.date,cur_time,strlen(cur_time)-1);
+        new_hof.points=points;
+        new_hof.best_hit=best_hit;
+
+        hof.push_back(new_hof);
+    }
+
+
+    void game_core::action(simple_matrix::rotation_angle angle)
+    {
+        bool moved = perform_the_move(angle);
 
         if(moved)
         {
@@ -130,20 +159,10 @@ namespace game_core
 
         //Game over?
         game_over = !check_is_possible_to_continue();
+
         if(game_over)
         {
-            //Save a new entry in the hall of fame
-            std::chrono::system_clock::time_point today = std::chrono::system_clock::now();
-            time_t tt;
-            tt=std::chrono::system_clock::to_time_t (today);
-            const char* cur_time=ctime(&tt);
-
-            hof_entry new_hof;
-            strncpy(new_hof.date,cur_time,strlen(cur_time)-1);
-            new_hof.points=points;
-            new_hof.best_hit=best_hit;
-
-            hof.push_back(new_hof);
+            add_new_hof_entry();
         }
     }
 
