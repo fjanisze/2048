@@ -2,8 +2,6 @@
 #include <fstream>
 #include <chrono>
 
-static const bool run_regression = false; //Set to true to build the regression code
-
 namespace graphic_2048
 {
 
@@ -148,21 +146,28 @@ namespace graphic_2048
         return levels[index];
     }
 
-    void graphic_2048::set_info()
+    void graphic_2048::set_info(const std::string& msg="")
     {
-        std::stringstream ss;
-        ss<<"Points "<<points;
-        if(last_hit>0)
+        if(msg.size())
         {
-            ss<<" (+"<<last_hit;
-            if(best_hit>0)
-            {
-                ss<<",best: +"<<best_hit;
-            }
-            ss<<")";
+            info_bar_text.setString(msg.c_str());
         }
-        ss<<" Level: "<<get_level(points);
-        info_bar_text.setString(ss.str().c_str());
+        else
+        {
+            std::stringstream ss;
+            ss<<"Points "<<points;
+            if(last_hit>0)
+            {
+                ss<<" (+"<<last_hit;
+                if(best_hit>0)
+                {
+                    ss<<",best: +"<<best_hit;
+                }
+                ss<<")";
+            }
+            ss<<" Level: "<<get_level(points);
+            info_bar_text.setString(ss.str().c_str());
+        }
     }
 
     void graphic_2048::click(const sf::Event& ev)
@@ -399,6 +404,7 @@ namespace graphic_2048
             out_stream.write(data,size);
         });
         save_and_load_impl(save);
+        set_info("Game saved");
     }
 
     long graphic_2048::load_data(std::ifstream& in_stream)
@@ -410,7 +416,7 @@ namespace graphic_2048
         hof.clear();
         save_and_load_impl(load);
         update_num_color();
-        set_info();
+        set_info("Game loaded");
     }
 
     long graphic_2048::save_and_load_impl(std::function<void(char*,std::size_t)> operation)
