@@ -1,4 +1,4 @@
-#include "2048.hpp"
+#include "game_graphic.hpp"
 #include "game_menu.hpp"
 
 namespace menu_2048

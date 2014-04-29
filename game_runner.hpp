@@ -33,6 +33,8 @@ namespace game_runner
         void hof_game_button();
         void quit_game_button();
         bool escape_button_pressed(const sf::Event& event);
+        void save_data();
+        void load_data();
     public:
         game_runner();
         void loop();

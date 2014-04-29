@@ -42,15 +42,12 @@ namespace graphic_ui
         sf::Color num_bg_default{255,100,100};
         sf::Text  info_bar_text;
 
-        void set_info(const std::string& msg);
         void button(const sf::Event& ev);
-        long save_and_load_impl(std::function<void(char*,std::size_t)> operation);
     public:
         graphic_ui(game_core::game_core& game_core_ref,int x_size,int y_size,int size);
         void draw(sf::RenderWindow& rnd);
         void update_num_color();
         void trigger_event(const sf::Event& event);
-        long save_data(std::ofstream& out_stream);
-        long load_data(std::ifstream& in_stream);
+        void set_info(const std::string& msg);
     };
 }

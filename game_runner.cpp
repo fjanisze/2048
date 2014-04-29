@@ -40,26 +40,17 @@ namespace game_runner
         current_mode=current_game_mode::PLAY_MODE;
         core.reset_board();
         core.add_new_number(2);
+        graphic.update_num_color();
     }
 
     void game_runner::load_game_button()
     {
-        std::ifstream in_file{data_filename,std::ios_base::binary};
-        if(in_file)
-        {
-            //graphic.load_data(in_file);
-            in_file.close();
-        }
+        load_data();
     }
 
     void game_runner::save_game_button()
     {
-        std::ofstream out_file{data_filename,std::ios_base::binary};
-        if(out_file)
-        {
-            //graphic.save_data(out_file);
-            out_file.close();
-        }
+        save_data();
     }
 
     void game_runner::hof_game_button()
@@ -163,4 +154,35 @@ namespace game_runner
         return false;
     }
 
+
+    void game_runner::save_data()
+    {
+        std::ofstream out_file{data_filename,std::ios_base::out|std::ios_base::binary};
+        if(out_file)
+        {
+            core>>out_file;
+            out_file.close();
+            graphic.set_info("Game saved");
+        }
+        else
+        {
+            graphic.set_info("Unable to open the data file");
+        }
+    }
+
+    void game_runner::load_data()
+    {
+        std::ifstream in_file{data_filename,std::ios_base::in|std::ios_base::binary};
+        if(in_file)
+        {
+            core<<in_file;
+            in_file.close();
+            graphic.update_num_color();
+            graphic.set_info("Game loaded");
+        }
+        else
+        {
+            graphic.set_info("Unable to open the data file");
+        }
+    }
 }

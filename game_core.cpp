@@ -7,7 +7,12 @@ namespace game_core
                                     num_container(board_size)
     {
         reset_board();
-        //Random number generator, use the marsenne twister engine
+        generate_random_numbers();
+    }
+
+    void game_core::generate_random_numbers()
+    {
+         //Random number generator, use the marsenne twister engine
         std::random_device rd;
         std::mt19937 en(rd()); //marsenne twister engine
         std::uniform_int_distribution<> generator{0,map_size-1};
@@ -15,7 +20,7 @@ namespace game_core
         {
             random_coords.push_back(std::make_pair<int,int>(generator(en),generator(en)));
         }
-
+        random_coord_index=0;
     }
 
     void game_core::get_random_coord(int& x,int& y)
@@ -196,7 +201,7 @@ namespace game_core
         return game_score.points;
     }
 
-    const points_info& game_core::get_score()
+    points_info game_core::get_score()
     {
         return game_score;
     }
@@ -232,9 +237,58 @@ namespace game_core
         game_over=false;
     }
 
-    std::vector<hof_entry>& game_core::get_hof()
+    const std::vector<hof_entry>& game_core::get_hof()
     {
         std::sort(hof.rbegin(),hof.rend());
         return hof;
+    }
+
+    void game_core::save_load_common(std::function<void(char*,std::size_t)> operation)
+    {
+        operation((char*)(&game_over),sizeof(bool));
+        operation((char*)(&game_score.points),sizeof(int));
+        operation((char*)(&game_score.last_hit),sizeof(int));
+        operation((char*)(&game_score.best_hit),sizeof(int));
+        for(int y=0;y<map_size;y++)
+        {
+            for(int x=0;x<map_size;x++)
+            {
+                int& num = num_container.get(x,y);
+                operation((char*)(&num),sizeof(int));
+            }
+        }
+        //Hall of fame
+        size_t size = hof.size();
+        operation((char*)(&size),sizeof(size_t));
+        if(hof.empty()&&size>0)
+        {
+            //Seems this is a load operation, and size was set to >0 even if hof is 0
+            hof.resize(size);
+        }
+        for(int i=0;i<size;i++)
+        {
+            hof_entry& entry=hof[i];
+            operation((char*)(&entry),sizeof(hof_entry));
+        }
+    }
+
+    game_core& game_core::operator<<(std::ifstream& in)
+    {
+        std::function<void(char*,std::size_t)> load([&](char* data,std::size_t size)
+        {
+            in.read(data,size);
+        });
+        save_load_common(load);
+        return *this;
+    }
+
+    game_core& game_core::operator>>(std::ofstream& out)
+    {
+        std::function<void(const char*,std::size_t)> save([&](const char* data,std::size_t size)
+        {
+            out.write(data,size);
+        });
+        save_load_common(save);
+        return *this;
     }
 }
