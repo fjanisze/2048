@@ -3,12 +3,12 @@
 namespace game_runner
 {
     game_runner::game_runner() : core(4),
-                                 graphic(core,800,600,4),
+                                 graphic(core,app,800,600,4,60),
                                  menu(800,600)
     {
         current_mode=current_game_mode::MENU_MODE;//By default
         app.create(sf::VideoMode(800, 630), "2048");
-        app.setFramerateLimit(40);
+        app.setFramerateLimit(60);
 
         core.add_new_number(2);
         graphic.update_num_color();
@@ -115,14 +115,14 @@ namespace game_runner
             }
 
             // Clear screen
-            app.clear(sf::Color::Black);
+            app.clear(graphic.get_bg_default());
             if(current_mode==current_game_mode::PLAY_MODE)
             {
-                graphic.draw(app);
+                graphic.draw();
             }
             else if(current_mode==current_game_mode::MENU_MODE)
             {
-                graphic.draw(app);
+                graphic.draw();
                 menu.draw_menu(app);
             }
             else

@@ -106,7 +106,6 @@ namespace game_core
         bool moved=false;
         //Now do the sum
         game_score.last_hit=0;
-        std::vector<grid_mov_info> movement_info;
         bool skip_insertion=false;
         for(int y=0;y<map_size;y++)
         {
@@ -195,11 +194,6 @@ namespace game_core
             //Ignored
             ;
         };
-        for(auto elem:movement_info)
-        {
-            std::cout<<"Moving: "<<elem.x_from<<","<<elem.y_from<<" to "<<elem.x_to<<","<<elem.y_to<<std::endl;
-        }
-        std::cout<<std::endl;
         return moved;
     }
 
@@ -220,7 +214,7 @@ namespace game_core
     }
 
 
-    void game_core::action(simple_matrix::rotation_angle angle)
+    bool game_core::action(simple_matrix::rotation_angle angle)
     {
         bool moved = perform_the_move(angle);
 
@@ -236,6 +230,7 @@ namespace game_core
         {
             add_new_hof_entry();
         }
+        return moved;
     }
 
     int game_core::score_point(int x, int y)
@@ -282,6 +277,13 @@ namespace game_core
         }
         game_score.reset();
         game_over=false;
+    }
+
+    std::vector<grid_mov_info> game_core::get_movement_info()
+    {
+        std::vector<grid_mov_info> movement_vec_copy(std::move(movement_info));
+        movement_info.clear();
+        return std::move(movement_vec_copy);
     }
 
     const std::vector<hof_entry>& game_core::get_hof()

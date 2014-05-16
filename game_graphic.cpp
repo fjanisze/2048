@@ -6,11 +6,13 @@
 namespace graphic_ui
 {
 
-    graphic_ui::graphic_ui(game_core::game_core& game_core_ref,
-                           int x_size,int y_size,int size) :core(game_core_ref),
+    graphic_ui::graphic_ui(game_core::game_core& game_core_ref,sf::RenderWindow& p_render_window,
+                           int x_size,int y_size,int size,
+                           int p_frame_rate) :core(game_core_ref),
                                                             x_s(x_size/size), y_s(y_size/size),
                                                             map_size(size),
-                                                            grid_container(size)
+                                                            grid_container(size),
+                                                            render_window(p_render_window)
     {
         if(!font.loadFromFile("consola.ttf"))
         {
@@ -27,11 +29,6 @@ namespace graphic_ui
                 grid->border[1].position = sf::Vector2f( x*(x_s) + x_s , y*(y_s) );
                 grid->border[2].position = sf::Vector2f( x*(x_s) + x_s , y*(y_s) + y_s );
                 grid->border[3].position = sf::Vector2f( x*(x_s) , y*(y_s) + y_s );
-                grid->border[0].color = bg_default;
-                grid->border[1].color = bg_default;
-                grid->border[2].color = bg_default;
-                grid->border[3].color = bg_default;
-                //grid->border[4].position = sf::Vector2f( x*(x_s) , y*(y_s) );
 
                 grid->text.setFont(font);
                 grid->text.setCharacterSize(40);
@@ -80,34 +77,46 @@ namespace graphic_ui
 
         game_over_sprite.setPosition(x_size-200,y_size);
         game_over_sprite.setTexture(game_over_texture);
+
+        //Create the animation engine instance
+        anim_engine=std::shared_ptr<animation_engine::animation_engine>(new animation_engine::animation_engine(render_window,p_frame_rate));
     }
 
-    void graphic_ui::draw(sf::RenderWindow& rnd)
+    void graphic_ui::draw()
     {
-        for(int y=0;y<map_size;y++)
+        //Any movement to draw?
+        if(movements_info.size())
         {
-            for(int x=0;x<map_size;x++)
+
+            movements_info.clear();
+        }
+        else
+        {
+            for(int y=0;y<map_size;y++)
             {
-                std::shared_ptr<single_grid> grid=grid_container.get(x,y);
-                rnd.draw(grid->border);
-                int n=core.get_number(x,y);
-                if(n>0)
+                for(int x=0;x<map_size;x++)
                 {
-                    std::stringstream ss;
-                    ss<<n;
-                    grid->text.setString(ss.str().c_str());
-                    rnd.draw(grid->text);
+                    std::shared_ptr<single_grid> grid=grid_container.get(x,y);
+                    render_window.draw(grid->border);
+                    int n=core.get_number(x,y);
+                    if(n>0)
+                    {
+                        std::stringstream ss;
+                        ss<<n;
+                        grid->text.setString(ss.str().c_str());
+                        render_window.draw(grid->text);
+                    }
                 }
             }
         }
 
         if(!core.can_continue())
         {
-            rnd.draw(game_over_sprite);
+            render_window.draw(game_over_sprite);
         }
 
         //Draw the info bar
-        rnd.draw(info_bar_text);
+        render_window.draw(info_bar_text);
     }
 
     void graphic_ui::set_info(const std::string& msg="")
@@ -140,7 +149,18 @@ namespace graphic_ui
         int key=ev.key.code;
         if(keymap.find(key)!=keymap.end())
         {
-            core.action(keymap[key]);
+            bool any_movement_to_draw=false;
+            any_movement_to_draw=core.action(keymap[key]);
+            if(any_movement_to_draw)
+            {
+                movements_info=std::move(core.get_movement_info());
+                //To be removed;
+                for(auto elem:movements_info)
+                {
+                    std::cout<<"Moving: "<<elem.x_from<<","<<elem.y_from<<" to "<<elem.x_to<<","<<elem.y_to<<std::endl;
+                }
+                std::cout<<std::endl;
+            }
         }
     }
 

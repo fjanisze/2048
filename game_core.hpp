@@ -73,6 +73,7 @@ namespace game_core
         int random_coord_index;
         void generate_random_numbers();
 
+        std::vector<grid_mov_info> movement_info;
         num_container_t  num_container;
         std::vector<hof_entry> hof;
 
@@ -88,9 +89,10 @@ namespace game_core
         int get_number(int x,int y);
         void set_number(int x,int y,int n);
         points_info get_score();
-        void action(simple_matrix::rotation_angle angle);
+        bool action(simple_matrix::rotation_angle angle);
         int score_point(int x, int y);
         void reset_board();
+        std::vector<grid_mov_info> get_movement_info();
 
         std::string get_level(int pt);
         const std::vector<hof_entry>& get_hof();

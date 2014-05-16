@@ -4,6 +4,7 @@
 #include <map>
 #include <vector>
 #include <string>
+#include "animation/animation.hpp"
 
 namespace graphic_ui
 {
@@ -24,6 +25,7 @@ namespace graphic_ui
     protected: //:( for testing purpose
 
         game_core::game_core& core;
+        sf::RenderWindow& render_window;
 
         int x_s,
             y_s,
@@ -36,6 +38,9 @@ namespace graphic_ui
 
         std::map<int,simple_matrix::rotation_angle> keymap;
         std::map<int,sf::Color> num_colors;
+        std::vector<game_core::grid_mov_info> movements_info;
+
+        std::shared_ptr<animation_engine::animation_engine> anim_engine;
 
         sf::Font font;
         sf::Color bg_default{230,230,200};
@@ -44,10 +49,12 @@ namespace graphic_ui
 
         void button(const sf::Event& ev);
     public:
-        graphic_ui(game_core::game_core& game_core_ref,int x_size,int y_size,int size);
-        void draw(sf::RenderWindow& rnd);
+        graphic_ui(game_core::game_core& game_core_ref,sf::RenderWindow& p_render_window,int x_size,int y_size,int size,int p_frame_rate);
+        void draw();
         void update_num_color();
         void trigger_event(const sf::Event& event);
         void set_info(const std::string& msg);
+        sf::Color get_bg_default()
+        {   return bg_default;  }
     };
 }
