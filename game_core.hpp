@@ -51,6 +51,13 @@ namespace game_core
         {   }
     };
 
+    struct grid_mov_info
+    {
+        int x_from,y_from;
+        int x_to,y_to;
+        grid_mov_info()=default;
+    };
+
     template<typename T>
     using sq_matrix = simple_matrix::simple_square_matrix<T>;
 

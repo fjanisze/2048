@@ -61,7 +61,7 @@ namespace game_core
             "Failed porn actor!",
             "Pornstar actress without boobs"
         };
-        int index = pt/1024;
+        int index = pt/(256*3);
         index = index>19?19:index;
         return levels[index];
     }
@@ -106,6 +106,8 @@ namespace game_core
         bool moved=false;
         //Now do the sum
         game_score.last_hit=0;
+        std::vector<grid_mov_info> movement_info;
+        bool skip_insertion=false;
         for(int y=0;y<map_size;y++)
         {
             int cur_x=map_size-1;
@@ -120,6 +122,8 @@ namespace game_core
                     {
                         score_point(cur_x,y);
                         num_container.get(x,y)=0;
+                        movement_info.emplace_back(grid_mov_info{x,y,cur_x,y});
+                        skip_insertion=true;
                         --cur_x;
                         moved=true;
                     }
@@ -132,7 +136,12 @@ namespace game_core
                     {
                         num_container.get(x,y)=0;
                         moved=true;
+                        if(!skip_insertion)
+                        {
+                            movement_info.emplace_back(grid_mov_info{x,y,cur_x,y});
+                        }
                     }
+                    skip_insertion=false;
                 }
             }
         }
@@ -142,17 +151,55 @@ namespace game_core
         {
         case simple_matrix::rotation_angle::rotate_90:
             num_container.rotate(simple_matrix::rotation_angle::rotate_270);
+            {
+                for(auto& elem:movement_info)
+                {
+                    //Transponse
+                    std::swap(elem.x_from,elem.y_from);
+                    std::swap(elem.x_to,elem.y_to);
+                    //Reverse col
+                    elem.y_from=map_size-elem.y_from-1;
+                    elem.y_to=map_size-elem.y_to-1;
+                }
+            }
             break;
         case simple_matrix::rotation_angle::rotate_180:
             num_container.rotate(simple_matrix::rotation_angle::rotate_180);
+            {
+                for(auto& elem:movement_info)
+                {
+                    //Reverse row
+                    elem.x_from=map_size-elem.x_from-1;
+                    elem.x_to=map_size-elem.x_to-1;
+                    //Reverse col
+                    elem.y_from=map_size-elem.y_from-1;
+                    elem.y_to=map_size-elem.y_to-1;
+                }
+            }
             break;
         case simple_matrix::rotation_angle::rotate_270:
             num_container.rotate(simple_matrix::rotation_angle::rotate_90);
+            {
+                for(auto& elem:movement_info)
+                {
+                    //Transponse
+                    std::swap(elem.x_from,elem.y_from);
+                    std::swap(elem.x_to,elem.y_to);
+                    //Reverse row
+                    elem.x_from=map_size-elem.x_from-1;
+                    elem.x_to=map_size-elem.x_to-1;
+                }
+            }
             break;
         default:
             //Ignored
             ;
         };
+        for(auto elem:movement_info)
+        {
+            std::cout<<"Moving: "<<elem.x_from<<","<<elem.y_from<<" to "<<elem.x_to<<","<<elem.y_to<<std::endl;
+        }
+        std::cout<<std::endl;
         return moved;
     }
 
