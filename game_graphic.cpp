@@ -80,15 +80,30 @@ namespace graphic_ui
 
         //Create the animation engine instance
         anim_engine=std::shared_ptr<animation_engine::animation_engine>(new animation_engine::animation_engine(render_window,p_frame_rate));
+        if(!grid_movement_texture.create(x_s,y_s))
+        {
+            throw std::runtime_error("HOLY SHIT! Unable to create the 'grid_movement_texture' texture!");
+        }
+        else
+        {
+            int* pixel_map=new int[x_s*y_s*4];
+            memset(pixel_map,0xaabbcc,x_s*y_s*4);
+            grid_movement_texture.update((sf::Uint8*)pixel_map);
+            delete[] pixel_map;
+        }
     }
 
     void graphic_ui::draw()
     {
         //Any movement to draw?
-        if(movements_info.size())
+        if(draw_movement)
         {
-
-            movements_info.clear();
+            anim_engine->draw();
+            if(anim_engine->check_if_all_completed())
+            {
+                draw_movement=false;
+                anim_engine->clean_up();
+            }
         }
         else
         {
@@ -114,7 +129,6 @@ namespace graphic_ui
         {
             render_window.draw(game_over_sprite);
         }
-
         //Draw the info bar
         render_window.draw(info_bar_text);
     }
@@ -154,14 +168,29 @@ namespace graphic_ui
             if(any_movement_to_draw)
             {
                 movements_info=std::move(core.get_movement_info());
-                //To be removed;
-                for(auto elem:movements_info)
-                {
-                    std::cout<<"Moving: "<<elem.x_from<<","<<elem.y_from<<" to "<<elem.x_to<<","<<elem.y_to<<std::endl;
-                }
-                std::cout<<std::endl;
+                create_the_animation_objects();
             }
         }
+    }
+
+    void graphic_ui::create_the_animation_objects()
+    {
+        if(movements_info.size())
+        {
+            for(auto& elem:movements_info)
+            {
+                sf::Sprite obj_sprite(grid_movement_texture);
+                animation_engine::anim_obj_ptr object=animation_engine::animated_object::create(obj_sprite);
+                object->set_begin_position(sf::Vector2f(elem.x_from*x_s,elem.y_from*y_s));
+                object->set_end_position(sf::Vector2f(elem.x_to*x_s,elem.y_to*y_s));
+                object->prepare_to_render();
+                object->set_animation_speed(2,60);
+                anim_engine->register_object(object);
+            }
+            movements_info.clear();
+            draw_movement=true;
+        }
+        else draw_movement=false;
     }
 
     void graphic_ui::update_num_color()

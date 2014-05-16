@@ -31,7 +31,8 @@ namespace graphic_ui
             y_s,
             map_size;
 
-        sf::Texture game_over_texture;
+        sf::Texture game_over_texture,
+                    grid_movement_texture;
         sf::Sprite game_over_sprite;
 
         grid_container_t grid_container;
@@ -39,6 +40,7 @@ namespace graphic_ui
         std::map<int,simple_matrix::rotation_angle> keymap;
         std::map<int,sf::Color> num_colors;
         std::vector<game_core::grid_mov_info> movements_info;
+        bool draw_movement{false};
 
         std::shared_ptr<animation_engine::animation_engine> anim_engine;
 
@@ -48,6 +50,7 @@ namespace graphic_ui
         sf::Text  info_bar_text;
 
         void button(const sf::Event& ev);
+        void create_the_animation_objects();
     public:
         graphic_ui(game_core::game_core& game_core_ref,sf::RenderWindow& p_render_window,int x_size,int y_size,int size,int p_frame_rate);
         void draw();

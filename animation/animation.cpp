@@ -100,6 +100,7 @@ namespace animation_engine
         functions=interpolation;
         m_sprite=p_sprite;
         m_begin_position=m_sprite->getPosition();
+        m_status=anim_obj_status::STATUS_NOT_READY;
         animation_speed_info=animation_speed_type::IS_NORMAL;
 
     }
