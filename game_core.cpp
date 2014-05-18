@@ -121,7 +121,7 @@ namespace game_core
                     {
                         score_point(cur_x,y);
                         num_container.get(x,y)=0;
-                        movement_info.emplace_back(grid_mov_info{x,y,cur_x,y});
+                        movement_info.emplace_back(grid_mov_info{x,y,cur_x,y,t});
                         skip_insertion=true;
                         --cur_x;
                         moved=true;
@@ -137,7 +137,7 @@ namespace game_core
                         moved=true;
                         if(!skip_insertion)
                         {
-                            movement_info.emplace_back(grid_mov_info{x,y,cur_x,y});
+                            movement_info.emplace_back(grid_mov_info{x,y,cur_x,y,t});
                         }
                     }
                     skip_insertion=false;

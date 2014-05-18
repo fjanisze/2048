@@ -80,17 +80,6 @@ namespace graphic_ui
 
         //Create the animation engine instance
         anim_engine=std::shared_ptr<animation_engine::animation_engine>(new animation_engine::animation_engine(render_window,p_frame_rate));
-        if(!grid_movement_texture.create(x_s,y_s))
-        {
-            throw std::runtime_error("HOLY SHIT! Unable to create the 'grid_movement_texture' texture!");
-        }
-        else
-        {
-            int* pixel_map=new int[x_s*y_s*4];
-            memset(pixel_map,0xaabbcc,x_s*y_s*4);
-            grid_movement_texture.update((sf::Uint8*)pixel_map);
-            delete[] pixel_map;
-        }
     }
 
     void graphic_ui::draw()
@@ -179,7 +168,16 @@ namespace graphic_ui
         {
             for(auto& elem:movements_info)
             {
+                sf::Texture grid_movement_texture;
+                grid_movement_texture.create(x_s,y_s);
+                sf::Uint32 pixel=(0xff<<24)|//Assuming a little endian machine.. from RGBA to ABGR :|
+                                 ((sf::Uint32)num_colors[elem.num].b<<16)|
+                                 ((sf::Uint32)num_colors[elem.num].g<<8)|
+                                 ((sf::Uint32)num_colors[elem.num].r);
+                std::vector<sf::Uint32> pixel_map(x_s*y_s,pixel);
+                grid_movement_texture.update((sf::Uint8*)&pixel_map.front());
                 sf::Sprite obj_sprite(grid_movement_texture);
+
                 animation_engine::anim_obj_ptr object=animation_engine::animated_object::create(obj_sprite);
                 object->set_begin_position(sf::Vector2f(elem.x_from*x_s,elem.y_from*y_s));
                 object->set_end_position(sf::Vector2f(elem.x_to*x_s,elem.y_to*y_s));

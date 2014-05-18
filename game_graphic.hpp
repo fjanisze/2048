@@ -31,8 +31,7 @@ namespace graphic_ui
             y_s,
             map_size;
 
-        sf::Texture game_over_texture,
-                    grid_movement_texture;
+        sf::Texture game_over_texture;
         sf::Sprite game_over_sprite;
 
         grid_container_t grid_container;

@@ -55,6 +55,7 @@ namespace game_core
     {
         int x_from,y_from;
         int x_to,y_to;
+        int num;
         grid_mov_info()=default;
     };
 
