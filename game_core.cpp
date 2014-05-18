@@ -106,7 +106,6 @@ namespace game_core
         bool moved=false;
         //Now do the sum
         game_score.last_hit=0;
-        bool skip_insertion=false;
         for(int y=0;y<map_size;y++)
         {
             int cur_x=map_size-1;
@@ -115,36 +114,40 @@ namespace game_core
                 int t=num_container.get(x,y);
                 if(t!=0)
                 {
-                    if(cur_x==x) continue;
-                    int t2=num_container.get(cur_x,y);
-                    if(t2==t)
+                    if(cur_x!=x)
                     {
-                        score_point(cur_x,y);
-                        num_container.get(x,y)=0;
-                        movement_info.emplace_back(grid_mov_info{x,y,cur_x,y,t});
-                        skip_insertion=true;
-                        --cur_x;
-                        moved=true;
+                        int t2=num_container.get(cur_x,y);
+                        if(t2==t)
+                        {
+                            score_point(cur_x,y);
+                            num_container.get(x,y)=0;
+                            movement_info.emplace_back(grid_mov_info{x,y,cur_x,y,t});
+                            --cur_x;
+                            moved=true;
+                        }
+                        else
+                        {
+                            if(t2!=0) --cur_x;
+                            num_container.get(cur_x,y)=t;
+                            movement_info.emplace_back(grid_mov_info{x,y,cur_x,y,t});
+                        }
+                        if(cur_x!=x)
+                        {
+                            num_container.get(x,y)=0;
+                            moved=true;
+                        }
                     }
                     else
                     {
-                        if(t2!=0) --cur_x;
-                        num_container.get(cur_x,y)=t;
+                        movement_info.emplace_back(grid_mov_info{x,y,cur_x,y,t});
                     }
-                    if(cur_x!=x)
-                    {
-                        num_container.get(x,y)=0;
-                        moved=true;
-                        if(!skip_insertion)
-                        {
-                            movement_info.emplace_back(grid_mov_info{x,y,cur_x,y,t});
-                        }
-                    }
-                    skip_insertion=false;
                 }
             }
         }
-
+        if(!moved)
+        {
+            movement_info.clear();
+        }
         //Rotate back
         switch(angle)
         {

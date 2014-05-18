@@ -88,10 +88,10 @@ namespace graphic_ui
         if(draw_movement)
         {
             anim_engine->draw();
-            if(anim_engine->check_if_all_completed())
+            if(anim_engine->check_if_all_completed_or_stopped())
             {
                 draw_movement=false;
-                anim_engine->clean_up();
+                anim_engine->clean_up(true);
             }
         }
         else
@@ -112,7 +112,7 @@ namespace graphic_ui
                     }
                 }
             }
-        }
+       }
 
         if(!core.can_continue())
         {
@@ -182,8 +182,9 @@ namespace graphic_ui
                 object->set_begin_position(sf::Vector2f(elem.x_from*x_s,elem.y_from*y_s));
                 object->set_end_position(sf::Vector2f(elem.x_to*x_s,elem.y_to*y_s));
                 object->prepare_to_render();
-                object->set_animation_speed(2,60);
-                anim_engine->register_object(object);
+                object->set_animation_speed(0.05,60);
+
+                anim_engine->register_object(object,animation_engine::animated_obj_completion_opt::ACTION_DONT_MOVE);
             }
             movements_info.clear();
             draw_movement=true;

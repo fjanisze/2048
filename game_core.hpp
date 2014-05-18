@@ -56,6 +56,10 @@ namespace game_core
         int x_from,y_from;
         int x_to,y_to;
         int num;
+        bool is_moving()
+        {
+            return (x_from!=x_to)||(y_from!=y_to);
+        }
         grid_mov_info()=default;
     };
 

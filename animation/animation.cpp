@@ -105,6 +105,7 @@ namespace animation_engine
         m_texture=std::make_shared<sf::Texture>(*p_sprite->getTexture());
         m_sprite->setTexture(*m_texture);
         m_begin_position=m_sprite->getPosition();
+        m_status=anim_obj_status::STATUS_NOT_READY;
         animation_speed_info=animation_speed_type::IS_NORMAL;
 
     }
@@ -149,12 +150,45 @@ namespace animation_engine
         }
     }
 
+    anim_obj_status animated_object::stop()
+    {
+        if(m_status!=anim_obj_status::STATUS_NOT_READY&&
+           m_status!=anim_obj_status::STATUS_FAULTY)
+        {
+            m_status=anim_obj_status::STATUS_STOPPED;
+        }
+        return m_status;
+    }
+
     anim_obj_status animated_object::frame_tick(sf::RenderWindow& p_rnd)
     {
-        if(m_status!=anim_obj_status::STATUS_READY)
+        if(m_status==anim_obj_status::STATUS_NOT_READY||
+           m_status==anim_obj_status::STATUS_FAULTY)
         {
             return m_status;
         }
+        if(m_status==anim_obj_status::STATUS_READY)
+        {
+            if(m_begin_position==m_end_position)
+            {
+                m_status=anim_obj_status::STATUS_COMPLETED;
+            }
+            else
+            {
+                frame_tick_moving_obj_impl();
+            }
+        }
+        else if(m_status==anim_obj_status::STATUS_STOPPED)
+        {
+            //Just use the current position and change nothing
+        }
+        //Draw the sprite
+        p_rnd.draw(*m_sprite);
+        return m_status;
+    }
+
+    void animated_object::frame_tick_moving_obj_impl()
+    {
         if(animation_speed_info==animation_speed_type::IS_SLOWER)
         {
             if(current_time>=expected_time_to_draw)//Reset the counter and do not change the position (skip the frame)
@@ -179,9 +213,28 @@ namespace animation_engine
         {
             m_sprite->setPosition(get_current_position());
         }
-        //Draw the sprite
-        p_rnd.draw(*m_sprite);
-        return m_status;
+    }
+
+    sf::Vector2f animated_object::get_current_position()
+    try{
+        if(m_current_position>=object_positions.size())
+        {
+            if(m_status==anim_obj_status::STATUS_READY)
+            {
+                m_status=anim_obj_status::STATUS_COMPLETED;
+            }
+            return m_end_position;
+        }
+        //Look for the new position
+        sf::Vector2f position;
+        position=object_positions[m_current_position];
+        ++m_current_position;
+        return position;
+    }catch(...)
+    {
+        m_current_position=0;
+        m_status=anim_obj_status::STATUS_FAULTY;
+        throw;
     }
 
     void animated_object::set_animation_speed(float p_anim_duration,int p_frame_rate)
@@ -210,28 +263,6 @@ namespace animation_engine
             single_frame_time_count=1.0/p_frame_rate;
         }
 
-    }
-
-    sf::Vector2f animated_object::get_current_position()
-    try{
-        if(m_current_position>=object_positions.size())
-        {
-            if(m_status==anim_obj_status::STATUS_READY)
-            {
-                m_status=anim_obj_status::STATUS_COMPLETED;
-            }
-            return m_end_position;
-        }
-        //Look for the new position
-        sf::Vector2f position;
-        position=object_positions[m_current_position];
-        ++m_current_position;
-        return position;
-    }catch(...)
-    {
-        m_current_position=0;
-        m_status=anim_obj_status::STATUS_FAULTY;
-        throw;
     }
 
     anim_obj_status animated_object::prepare_to_render()
@@ -288,6 +319,7 @@ namespace animation_engine
     {
         draw_return_status status=draw_return_status::STATUS_OK;
         amount_of_obj_in_complete_state=0;
+        amount_of_obj_in_stop_state=0;
         anim_obj_status obj_status;
         for(auto& elem:m_object_container)
         {
@@ -301,19 +333,27 @@ namespace animation_engine
             if(obj_status==anim_obj_status::STATUS_COMPLETED)
             {
                 status=perf_action_on_completed_animation(elem);
-                if(elem.m_action_when_completed!=animated_obj_completion_opt::ACTION_REPEAT_ANIMATION)
-                {   //A repeating animation cannot be in the complete state, after the repeat() call
-                    //is back in the 'ready' state
+                if(elem.m_action_when_completed==animated_obj_completion_opt::ACTION_REMOVE_ANIMATED_OBJECT)
+                {
                     ++amount_of_obj_in_complete_state;
                 }
+            }
+            else if(obj_status==anim_obj_status::STATUS_STOPPED)
+            {
+                ++amount_of_obj_in_stop_state;
             }
         }
         return status;
     }
 
     //The cleanup action is needed to remove from the container the object marked as m_to_be_removed{true}
-    int animation_engine::clean_up()
+    int animation_engine::clean_up(bool p_force_clean_all)
     {
+        if(p_force_clean_all)
+        {
+            m_object_container.clear();
+            return 0;
+        }
         std::list<anim_obj_container_entry>::iterator it=m_object_container.begin();
         while(it!=m_object_container.end())
         {
@@ -340,6 +380,12 @@ namespace animation_engine
                 p_obj.m_anim_object->repeat();
             }
             break;
+        case animated_obj_completion_opt::ACTION_DONT_MOVE:
+            {
+                p_obj.m_anim_object->stop();
+                ++amount_of_obj_in_stop_state;
+            }
+            break;
         }
         return draw_return_status::STATUS_OK;
     }
@@ -348,6 +394,11 @@ namespace animation_engine
     bool animation_engine::check_if_all_completed()
     {
         return amount_of_obj_in_complete_state==m_object_container.size();
+    }
+
+    bool animation_engine::check_if_all_completed_or_stopped()
+    {
+        return (amount_of_obj_in_complete_state+amount_of_obj_in_stop_state)==m_object_container.size();
     }
 }
 
