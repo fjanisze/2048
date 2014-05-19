@@ -182,7 +182,7 @@ namespace graphic_ui
                 object->set_begin_position(sf::Vector2f(elem.x_from*x_s,elem.y_from*y_s));
                 object->set_end_position(sf::Vector2f(elem.x_to*x_s,elem.y_to*y_s));
                 object->prepare_to_render();
-                object->set_animation_speed(0.05,60);
+                object->set_animation_speed(0.08,60);
 
                 anim_engine->register_object(object,animation_engine::animated_obj_completion_opt::ACTION_DONT_MOVE);
             }

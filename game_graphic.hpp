@@ -4,7 +4,7 @@
 #include <map>
 #include <vector>
 #include <string>
-#include "animation/animation.hpp"
+#include "../simple animation engine/animation.hpp"
 
 namespace graphic_ui
 {
