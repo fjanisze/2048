@@ -47,7 +47,7 @@ namespace game_core
             "Little dick!",
             "Half man!",
             "Still an half man!",
-            "Man with a small dick",
+            "SCT tester!",
             "Faceless dick!",
             "NSN developer!",
             "Human being!",
@@ -55,13 +55,14 @@ namespace game_core
             "Pussy",
             "Big Pussy!",
             "Nice Pussy!",
-            "Very good pussy!",
+            "Gerge Michael!",
             "drunken dwarf!",
             "drunken dwarf with a pussy!",
             "Failed porn actor!",
-            "Pornstar actress without boobs"
+            "Pornstar actress without boobs",
+            "You should work!",
         };
-        int index = pt/(256*3);
+        int index = pt/(1024);
         index = index>19?19:index;
         return levels[index];
     }
@@ -100,12 +101,9 @@ namespace game_core
         num_container.get(x,y)=n;
     }
 
-    bool game_core::perform_the_move(simple_matrix::rotation_angle angle)
+    bool game_core::any_movement_possible(simple_matrix::rotation_angle angle)
     {
-        num_container.rotate(angle);
         bool moved=false;
-        //Now do the sum
-        game_score.last_hit=0;
         for(int y=0;y<map_size;y++)
         {
             int cur_x=map_size-1;
@@ -148,11 +146,35 @@ namespace game_core
         {
             movement_info.clear();
         }
+        return moved;
+    }
+
+    void game_core::rotate_matrix_to_origin_pos(simple_matrix::rotation_angle angle)
+    {
         //Rotate back
         switch(angle)
         {
         case simple_matrix::rotation_angle::rotate_90:
             num_container.rotate(simple_matrix::rotation_angle::rotate_270);
+            break;
+        case simple_matrix::rotation_angle::rotate_180:
+            num_container.rotate(simple_matrix::rotation_angle::rotate_180);
+            break;
+        case simple_matrix::rotation_angle::rotate_270:
+            num_container.rotate(simple_matrix::rotation_angle::rotate_90);
+            break;
+        default:
+            //Ignored
+            ;
+        };
+    }
+
+    void game_core::rotate_mov_container_to_origin_pos(simple_matrix::rotation_angle angle)
+    {
+        //Rotate back
+        switch(angle)
+        {
+        case simple_matrix::rotation_angle::rotate_90:
             {
                 for(auto& elem:movement_info)
                 {
@@ -166,7 +188,6 @@ namespace game_core
             }
             break;
         case simple_matrix::rotation_angle::rotate_180:
-            num_container.rotate(simple_matrix::rotation_angle::rotate_180);
             {
                 for(auto& elem:movement_info)
                 {
@@ -180,7 +201,6 @@ namespace game_core
             }
             break;
         case simple_matrix::rotation_angle::rotate_270:
-            num_container.rotate(simple_matrix::rotation_angle::rotate_90);
             {
                 for(auto& elem:movement_info)
                 {
@@ -197,6 +217,19 @@ namespace game_core
             //Ignored
             ;
         };
+    }
+
+    bool game_core::perform_the_move(simple_matrix::rotation_angle angle)
+    {
+        num_container.rotate(angle);
+        game_score.last_hit=0;
+        movement_info.clear();
+
+        bool moved=any_movement_possible(angle);
+
+        rotate_matrix_to_origin_pos(angle);
+        rotate_mov_container_to_origin_pos(angle);
+
         return moved;
     }
 

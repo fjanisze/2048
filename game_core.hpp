@@ -86,6 +86,10 @@ namespace game_core
         bool perform_the_move(simple_matrix::rotation_angle angle);
         void add_new_hof_entry();
         void save_load_common(std::function<void(char*,std::size_t)> operation);
+        bool any_movement_possible(simple_matrix::rotation_angle angle);
+        void rotate_matrix_to_origin_pos(simple_matrix::rotation_angle angle);
+        void rotate_mov_container_to_origin_pos(simple_matrix::rotation_angle angle);
+        int score_point(int x, int y);
     public:
         game_core(int board_size);
         bool check_is_possible_to_continue();
@@ -95,7 +99,6 @@ namespace game_core
         void set_number(int x,int y,int n);
         points_info get_score();
         bool action(simple_matrix::rotation_angle angle);
-        int score_point(int x, int y);
         void reset_board();
         std::vector<grid_mov_info> get_movement_info();
 

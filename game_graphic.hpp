@@ -50,6 +50,7 @@ namespace graphic_ui
 
         void button(const sf::Event& ev);
         void create_the_animation_objects();
+        //bool create_new_texture(sf::Texture p_target_texture,int p_x_size,int p_y_size,sf::Color& p_color);
     public:
         graphic_ui(game_core::game_core& game_core_ref,sf::RenderWindow& p_render_window,int x_size,int y_size,int size,int p_frame_rate);
         void draw();

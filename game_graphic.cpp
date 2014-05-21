@@ -31,9 +31,9 @@ namespace graphic_ui
                 grid->border[3].position = sf::Vector2f( x*(x_s) , y*(y_s) + y_s );
 
                 grid->text.setFont(font);
-                grid->text.setCharacterSize(40);
+                grid->text.setCharacterSize(52);
                 grid->text.setColor(sf::Color::Black);
-                grid->text.setPosition(sf::Vector2f(x*(x_s)+4,y*(y_s)+(y_s-grid->text.getCharacterSize())/2.3));
+                grid->text.setStyle(sf::Text::Bold);
 
                 grid_container.get(x,y)=grid;
             }
@@ -108,6 +108,9 @@ namespace graphic_ui
                         std::stringstream ss;
                         ss<<n;
                         grid->text.setString(ss.str().c_str());
+                        int x_offset=x_s/2-grid->text.getCharacterSize()*ss.str().size()/4,
+                            y_offset=y_s/2-grid->text.getCharacterSize()/2;
+                        grid->text.setPosition(x*x_s+x_offset,y*y_s+y_offset);
                         render_window.draw(grid->text);
                     }
                 }
@@ -168,6 +171,9 @@ namespace graphic_ui
         {
             for(auto& elem:movements_info)
             {
+                sf::Vector2f begin_pos(elem.x_from*x_s,elem.y_from*y_s),
+                             end_pos(elem.x_to*x_s,elem.y_to*y_s);
+
                 sf::Texture grid_movement_texture;
                 grid_movement_texture.create(x_s,y_s);
                 sf::Uint32 pixel=(0xff<<24)|//Assuming a little endian machine.. from RGBA to ABGR :|
@@ -178,13 +184,32 @@ namespace graphic_ui
                 grid_movement_texture.update((sf::Uint8*)&pixel_map.front());
                 sf::Sprite obj_sprite(grid_movement_texture);
 
-                animation_engine::anim_obj_ptr object=animation_engine::animated_object::create(obj_sprite);
-                object->set_begin_position(sf::Vector2f(elem.x_from*x_s,elem.y_from*y_s));
-                object->set_end_position(sf::Vector2f(elem.x_to*x_s,elem.y_to*y_s));
+                animation_engine::anim_texture_ptr object=animation_engine::animated_texture::create(obj_sprite);
+                object->set_begin_position(begin_pos);
+                object->set_end_position(end_pos);
                 object->prepare_to_render();
-                object->set_animation_speed(0.08,60);
+                object->set_animation_speed(0.07,60);
 
                 anim_engine->register_object(object,animation_engine::animated_obj_completion_opt::ACTION_DONT_MOVE);
+                //Add the text
+                std::stringstream text_ss;
+                text_ss<<elem.num;
+                sf::Text text(text_ss.str().c_str(),font,52);
+                text.setColor(sf::Color::Black);
+                text.setStyle(sf::Text::Bold);
+                animation_engine::anim_text_ptr object_text=animation_engine::animated_text::create(text);
+                //Set the proper offset
+                int x_offset=x_s/2-text.getCharacterSize()*text_ss.str().size()/4,
+                    y_offset=y_s/2-text.getCharacterSize()/2;
+                begin_pos.x+=x_offset;
+                begin_pos.y+=y_offset;
+                end_pos.x+=x_offset;
+                end_pos.y+=y_offset;
+                object_text->set_begin_position(begin_pos);
+                object_text->set_end_position(end_pos);
+                object_text->prepare_to_render();
+                object_text->set_animation_speed(0.07,60);
+                anim_engine->register_object(object_text,animation_engine::animated_obj_completion_opt::ACTION_DONT_MOVE);
             }
             movements_info.clear();
             draw_movement=true;
