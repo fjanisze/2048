@@ -35,3 +35,5 @@ game over.jpg
 texture/DirtyPaper-2.jpg
 texture/paper-light.jpg
 2048data.dat
+*.gch
+*.o

@@ -188,7 +188,7 @@ namespace graphic_ui
                 object->set_begin_position(begin_pos);
                 object->set_end_position(end_pos);
                 object->prepare_to_render();
-                object->set_animation_duration(0.05);
+                object->set_animation_duration(0.07);
 
                 anim_engine->register_object(object,animation_engine::animated_obj_completion_opt::ACTION_DONT_MOVE);
                 //Add the text
@@ -208,7 +208,7 @@ namespace graphic_ui
                 object_text->set_begin_position(begin_pos);
                 object_text->set_end_position(end_pos);
                 object_text->prepare_to_render();
-                object_text->set_animation_duration(0.05);
+                object_text->set_animation_duration(0.07);
                 anim_engine->register_object(object_text,animation_engine::animated_obj_completion_opt::ACTION_DONT_MOVE);
             }
             movements_info.clear();
