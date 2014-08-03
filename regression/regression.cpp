@@ -1,7 +1,7 @@
 #include "regression.hpp"
-#include "../game_graphic.hpp"
-#include "../simple_matrix.hpp"
-#include "../game_menu.hpp"
+#include "../src/game_graphic.hpp"
+#include "../src/simple_matrix.hpp"
+#include "../src/game_menu.hpp"
 #include <gmock/gmock.h>
 
 namespace regression_2048

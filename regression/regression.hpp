@@ -1,4 +1,4 @@
-#include <gtest.h>
+#include <gtest/gtest.h>
 
 namespace regression_2048
 {

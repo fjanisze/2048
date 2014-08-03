@@ -1,5 +1,5 @@
-#include <gtest.h>
-#include "../simple_matrix.hpp"
+#include <gtest/gtest.h>
+#include "../src/simple_matrix.hpp"
 
 namespace regression_2048
 {

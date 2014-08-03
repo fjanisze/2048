@@ -1,5 +1,5 @@
-#include "../game_core.hpp"
-#include <gtest.h>
+#include "../src/game_core.hpp"
+#include <gtest/gtest.h>
 
 namespace game_core_regression
 {
@@ -107,4 +107,33 @@ namespace game_core_regression
         ASSERT_EQ(32,game.get_score().best_hit);
     }
 
+    class game_core_gameover : public ::testing::Test
+    {
+    public:
+        game_core::game_core game;
+        game_core_gameover() : game(4)
+        {
+            game.set_number(0,0,1);
+            game.set_number(0,1,2);
+            game.set_number(0,2,3);
+            game.set_number(0,3,4);
+            game.set_number(1,0,5);
+            game.set_number(1,1,6);
+            game.set_number(1,2,7);
+            game.set_number(1,3,8);
+            game.set_number(2,0,9);
+            game.set_number(2,1,10);
+            game.set_number(2,2,11);
+            game.set_number(2,3,12);
+            game.set_number(3,0,13);
+            game.set_number(3,1,14);
+            game.set_number(3,2,15);
+            game.set_number(3,3,16);
+        }
+    };
+
+    TEST_F(game_core_gameover,should_be_gameover)
+    {
+        ASSERT_FALSE(game.is_game_over());
+    }
 }
